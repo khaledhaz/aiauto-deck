@@ -619,14 +619,81 @@
     }
 
     /* ════════════════════════════════════════════
-       SLIDE 7 — CLOSE
+       SLIDE 7 — AI ENGINE CHOICE
     ════════════════════════════════════════════ */
     #slide-7 {
       background: var(--bg);
       overflow: hidden;
+    }
+    .engine-layout {
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+    }
+    .engine-cards {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      width: 100%;
+    }
+    .engine-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 28px 24px;
+      position: relative;
+      overflow: hidden;
+      transition: border-color 0.25s ease;
+    }
+    .engine-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--gold), transparent);
+      border-radius: 12px 12px 0 0;
+    }
+    .engine-card:hover {
+      border-color: var(--gold-line);
+    }
+    .engine-card-title {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: clamp(1.15rem, 1.8vw, 1.45rem);
+      font-weight: 700;
+      color: var(--white);
+      margin-bottom: 10px;
+    }
+    .engine-card-text {
+      font-size: clamp(0.85rem, 1.2vw, 1rem);
+      line-height: 1.65;
+      color: var(--muted);
+    }
+    .engine-closing {
+      font-size: clamp(0.9rem, 1.3vw, 1.05rem);
+      line-height: 1.7;
+      color: var(--gold);
+      font-weight: 600;
+      font-style: italic;
+      padding: 20px 24px;
+      border-left: 3px solid var(--gold-line);
+      background: var(--gold-glow);
+      border-radius: 0 8px 8px 0;
+    }
+    @media (max-width: 680px) {
+      .engine-cards {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* ════════════════════════════════════════════
+       SLIDE 8 — CLOSE
+    ════════════════════════════════════════════ */
+    #slide-8 {
+      background: var(--bg);
+      overflow: hidden;
       text-align: center;
     }
-    #slide-7 .slide-inner { position: relative; z-index: 2; text-align: center; }
+    #slide-8 .slide-inner { position: relative; z-index: 2; text-align: center; }
     .close-headline {
       font-family: 'Playfair Display', Georgia, serif;
       font-size: clamp(2.2rem, 4.5vw, 4.2rem);
@@ -696,11 +763,11 @@
 <body>
 
 <!-- ─── PROGRESS BAR ─────────────────────────── -->
-<div id="progress-bar" role="progressbar" aria-label="Presentation progress" aria-valuenow="1" aria-valuemin="1" aria-valuemax="7"></div>
+<div id="progress-bar" role="progressbar" aria-label="Presentation progress" aria-valuenow="1" aria-valuemin="1" aria-valuemax="8"></div>
 
 <!-- ─── SLIDE COUNTER ────────────────────────── -->
 <div id="slide-counter" aria-live="polite" aria-atomic="true">
-  <span id="current-num">1</span> / 7
+  <span id="current-num">1</span> / 8
 </div>
 
 <!-- ─── NAVIGATION ───────────────────────────── -->
@@ -1062,9 +1129,46 @@
   </section>
 
   <!-- ═══════════════════════════════════════════
-       SLIDE 7 — CLOSE
+       SLIDE 7 — AI ENGINE CHOICE
   ════════════════════════════════════════════ -->
-  <section id="slide-7" class="slide" role="region" aria-label="Closing slide">
+  <section id="slide-7" class="slide" role="region" aria-label="Your choice of AI engine">
+    <div class="grid-lines" aria-hidden="true"></div>
+    <div class="glow-orb-2" aria-hidden="true"></div>
+
+    <div class="slide-inner">
+      <div class="engine-layout">
+
+        <div class="anim-1">
+          <p class="overline">New</p>
+          <h2 class="headline">Your choice of AI engine.</h2>
+          <div class="gold-rule" aria-hidden="true"></div>
+          <p class="body-text">Switch engines anytime in Settings — the upload &rarr; preset &rarr; result flow stays exactly the same.</p>
+        </div>
+
+        <div class="engine-cards anim-2">
+
+          <article class="engine-card">
+            <h3 class="engine-card-title">Higgsfield</h3>
+            <p class="engine-card-text">The broadcast-grade default — highest resolution, built for air.</p>
+          </article>
+
+          <article class="engine-card">
+            <h3 class="engine-card-title">Gemini (Google)</h3>
+            <p class="engine-card-text">Runs on your existing Gemini subscription — no per-image cost.</p>
+          </article>
+
+        </div>
+
+        <p class="engine-closing anim-3">Flexibility + cost control — use the subscription you already pay for, and never be locked to one vendor as the models keep improving.</p>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════
+       SLIDE 8 — CLOSE
+  ════════════════════════════════════════════ -->
+  <section id="slide-8" class="slide" role="region" aria-label="Closing slide">
     <div class="grid-lines" aria-hidden="true"></div>
     <div class="glow-orb-center" aria-hidden="true"></div>
 
@@ -1097,10 +1201,11 @@
     'use strict';
 
     /* ─────────────────────────────────────────────
-       DECK NAVIGATION  (7 slides)
+       DECK NAVIGATION  (8 slides)
     ───────────────────────────────────────────── */
-    const TOTAL = 7;
+    const TOTAL = 8;
     // Slider slides (0-indexed): slides 3, 4, 5 = indices 2, 3, 4
+    // New slide 7 is at index 6 — NOT a slider, not added here.
     const SLIDER_SLIDES = new Set([2, 3, 4]);
 
     let current = 0;
