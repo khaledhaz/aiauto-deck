@@ -1,0 +1,1268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Al Arabiya AI Automation — Broadcast-Ready Visuals. In Seconds.</title>
+  <meta name="description" content="An internal AI tool for Al Arabiya's graphics department — upload an image, pick a preset, get a broadcast-ready version back." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet" />
+  <style>
+    /* ─────────────────────────────────────────────
+       TOKENS & RESET
+    ───────────────────────────────────────────── */
+    :root {
+      --bg:        #0d0e12;
+      --surface:   #13151b;
+      --surface2:  #1a1d27;
+      --border:    rgba(255,255,255,0.07);
+      --gold:      #c9a84c;
+      --gold-dim:  #8a6c2a;
+      --gold-glow: rgba(201,168,76,0.18);
+      --gold-line: rgba(201,168,76,0.35);
+      --white:     #f0ece4;
+      --muted:     #8a8a9a;
+      --slide-transition: 0.65s cubic-bezier(.77,0,.18,1);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      width: 100%; height: 100%;
+      background: var(--bg);
+      color: var(--white);
+      font-family: 'Inter', system-ui, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      overflow: hidden;
+    }
+
+    /* ─────────────────────────────────────────────
+       PROGRESS BAR
+    ───────────────────────────────────────────── */
+    #progress-bar {
+      position: fixed;
+      top: 0; left: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--gold), #e8c86a);
+      z-index: 100;
+      transition: width 0.4s ease;
+      border-radius: 0 2px 2px 0;
+      box-shadow: 0 0 12px var(--gold-glow);
+    }
+
+    /* ─────────────────────────────────────────────
+       SLIDE COUNTER
+    ───────────────────────────────────────────── */
+    #slide-counter {
+      position: fixed;
+      top: 18px; right: 20px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      color: var(--muted);
+      z-index: 100;
+      font-variant-numeric: tabular-nums;
+    }
+    #slide-counter span { color: var(--gold); }
+
+    /* ─────────────────────────────────────────────
+       NAVIGATION ARROWS
+    ───────────────────────────────────────────── */
+    .nav-btn {
+      position: fixed;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 100;
+      background: rgba(13,14,18,0.7);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      width: 48px; height: 48px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.25s ease;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+    .nav-btn:hover { color: var(--gold); border-color: var(--gold-line); background: rgba(201,168,76,0.08); }
+    .nav-btn:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
+    .nav-btn:active { transform: translateY(-50%) scale(0.93); }
+    #btn-prev { left: 14px; }
+    #btn-next { right: 14px; }
+    .nav-btn svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+    .tap-zone { display: none; }
+    @media (max-width: 899px) {
+      .tap-zone { display: block; position: fixed; top: 0; bottom: 92px; width: 33%; z-index: 60; background: transparent; -webkit-tap-highlight-color: transparent; }
+      .tap-zone.tap-prev { left: 0; }
+      .tap-zone.tap-next { right: 0; }
+    }
+
+    /* ─────────────────────────────────────────────
+       DOT NAVIGATION
+    ───────────────────────────────────────────── */
+    #dots {
+      position: fixed;
+      bottom: 22px; left: 50%;
+      transform: translateX(-50%);
+      z-index: 100;
+      display: flex;
+      gap: 7px;
+      align-items: center;
+    }
+    .dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.2);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border: none;
+      padding: 0;
+      /* Ensure tap target is large enough (visually small but hit area enlarged via outline area) */
+      min-width: 24px; min-height: 24px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .dot::after {
+      content: '';
+      display: block;
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.2);
+      transition: all 0.3s ease;
+    }
+    .dot:hover::after { background: rgba(201,168,76,0.6); }
+    .dot.active::after {
+      background: var(--gold);
+      width: 22px;
+      border-radius: 3px;
+      box-shadow: 0 0 8px var(--gold-glow);
+    }
+    .dot:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
+
+    /* ─────────────────────────────────────────────
+       DECK CONTAINER
+    ───────────────────────────────────────────── */
+    #deck {
+      position: fixed;
+      inset: 0;
+      overflow: hidden;
+    }
+
+    /* ─────────────────────────────────────────────
+       SLIDES
+    ───────────────────────────────────────────── */
+    .slide {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 72px 64px 80px;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateX(60px);
+      transition: opacity var(--slide-transition), transform var(--slide-transition);
+      will-change: transform, opacity;
+      overflow-y: auto;
+    }
+    .slide.active {
+      opacity: 1;
+      pointer-events: all;
+      transform: translateX(0);
+    }
+    .slide.exit-left {
+      opacity: 0;
+      transform: translateX(-60px);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .slide { transition: opacity 0.3s ease; transform: none !important; }
+      .slide.exit-left { transform: none !important; }
+      * { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; }
+    }
+
+    /* ─────────────────────────────────────────────
+       ENTRANCE ANIMATIONS
+    ───────────────────────────────────────────── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(28px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+    @keyframes scaleIn {
+      from { opacity: 0; transform: scale(0.92); }
+      to   { opacity: 1; transform: scale(1); }
+    }
+    @keyframes pulse-glow {
+      0%, 100% { box-shadow: 0 0 24px rgba(201,168,76,0.2); }
+      50%       { box-shadow: 0 0 48px rgba(201,168,76,0.45); }
+    }
+    @keyframes shimmer {
+      0%   { background-position: -200% center; }
+      100% { background-position: 200% center; }
+    }
+
+    .slide.active .anim-1 { animation: fadeUp 0.6s ease 0.1s both; }
+    .slide.active .anim-2 { animation: fadeUp 0.6s ease 0.25s both; }
+    .slide.active .anim-3 { animation: fadeUp 0.6s ease 0.4s both; }
+    .slide.active .anim-4 { animation: fadeUp 0.6s ease 0.55s both; }
+    .slide.active .anim-5 { animation: fadeUp 0.6s ease 0.7s both; }
+    .slide.active .anim-fade { animation: fadeIn 0.8s ease 0.1s both; }
+    .slide.active .anim-scale { animation: scaleIn 0.7s ease 0.3s both; }
+
+    /* ─────────────────────────────────────────────
+       COMMON LAYOUT HELPERS
+    ───────────────────────────────────────────── */
+    .slide-inner {
+      width: 100%;
+      max-width: 1100px;
+      position: relative;
+      z-index: 2;
+    }
+    .overline {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 16px;
+    }
+    .display {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: clamp(2.8rem, 5.5vw, 5.5rem);
+      line-height: 1.05;
+      font-weight: 900;
+      color: var(--white);
+    }
+    .display em { color: var(--gold); font-style: normal; }
+    .headline {
+      font-size: clamp(1.8rem, 3.5vw, 3.4rem);
+      font-weight: 800;
+      line-height: 1.1;
+      color: var(--white);
+    }
+    .headline em { color: var(--gold); font-style: normal; }
+    .body-text {
+      font-size: clamp(0.95rem, 1.5vw, 1.15rem);
+      line-height: 1.75;
+      color: var(--muted);
+      max-width: 680px;
+    }
+    .gold-rule {
+      width: 56px; height: 3px;
+      background: linear-gradient(90deg, var(--gold), transparent);
+      border-radius: 2px;
+      margin-bottom: 28px;
+    }
+
+    /* ─────────────────────────────────────────────
+       SCREENSHOT FRAME
+    ───────────────────────────────────────────── */
+    .screenshot-frame {
+      border-radius: 12px;
+      border: 1px solid rgba(201,168,76,0.25);
+      box-shadow: 0 8px 40px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,255,255,0.04);
+      overflow: hidden;
+      background: #1a1d27;
+      max-width: 100%;
+    }
+    .screenshot-frame .browser-bar {
+      height: 28px;
+      background: linear-gradient(90deg, #1a1d27, #13151b);
+      border-bottom: 1px solid rgba(201,168,76,0.15);
+      display: flex;
+      align-items: center;
+      padding: 0 12px;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+    .screenshot-frame .browser-bar .dot-row {
+      display: flex; gap: 5px;
+    }
+    .screenshot-frame .browser-bar .dot-row span {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.12);
+      display: block;
+    }
+    .screenshot-frame .browser-bar .dot-row span:first-child { background: rgba(224,90,90,0.4); }
+    .screenshot-frame .browser-bar .dot-row span:nth-child(2) { background: rgba(201,168,76,0.3); }
+    .screenshot-frame .browser-bar .dot-row span:last-child { background: rgba(60,180,120,0.3); }
+    .screenshot-frame img {
+      display: block;
+      width: 100%;
+      height: auto;
+      max-width: 100%;
+    }
+    .screenshot-caption {
+      font-size: 0.78rem;
+      color: var(--muted);
+      line-height: 1.5;
+      margin-top: 10px;
+      padding: 0 2px;
+      font-style: italic;
+    }
+
+    /* ─────────────────────────────────────────────
+       BACKGROUND DECORATIONS (cover / close)
+    ───────────────────────────────────────────── */
+    .grid-lines {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+      background-size: 80px 80px;
+      pointer-events: none;
+    }
+    .glow-orb {
+      position: absolute;
+      width: 800px; height: 800px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(201,168,76,0.12) 0%, transparent 70%);
+      top: -200px; right: -200px;
+      z-index: 1;
+      pointer-events: none;
+    }
+    .glow-orb-2 {
+      position: absolute;
+      width: 500px; height: 500px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(120,80,200,0.07) 0%, transparent 70%);
+      bottom: -100px; left: -100px;
+      z-index: 1;
+      pointer-events: none;
+    }
+    .glow-orb-center {
+      position: absolute;
+      width: 700px; height: 700px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(201,168,76,0.1) 0%, transparent 70%);
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 1;
+      pointer-events: none;
+      animation: pulse-glow 4s ease-in-out infinite;
+    }
+
+    /* ════════════════════════════════════════════
+       SLIDE 1 — COVER
+    ════════════════════════════════════════════ */
+    #slide-1 {
+      background: var(--bg);
+      overflow: hidden;
+    }
+    #slide-1 .slide-inner { text-align: center; }
+    .logo-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(201,168,76,0.1);
+      border: 1px solid var(--gold-line);
+      border-radius: 100px;
+      padding: 8px 18px;
+      margin-bottom: 36px;
+    }
+    .logo-badge svg { width: 16px; height: 16px; }
+    .logo-badge span { font-size: 11px; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: var(--gold); }
+    .cover-tagline {
+      font-size: clamp(1rem, 1.8vw, 1.25rem);
+      color: var(--muted);
+      font-weight: 400;
+      letter-spacing: 0.04em;
+      margin-top: 24px;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+      line-height: 1.65;
+    }
+    .cover-divider {
+      width: 1px;
+      height: 56px;
+      background: linear-gradient(to bottom, transparent, var(--gold), transparent);
+      margin: 36px auto;
+    }
+    .cover-meta {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 20px 32px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.3);
+    }
+    .cover-meta span { color: rgba(255,255,255,0.5); }
+
+    /* ════════════════════════════════════════════
+       SLIDE 2 — WHAT IT IS
+    ════════════════════════════════════════════ */
+    #slide-2 { background: var(--bg); overflow: hidden; }
+    #slide-2 .what-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 56px;
+      align-items: start;
+      margin-top: 8px;
+    }
+    #slide-2 .what-points {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin-top: 8px;
+    }
+    .point-item {
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+      padding: 18px 20px;
+      background: rgba(255,255,255,0.025);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      transition: border-color 0.3s ease;
+    }
+    .point-item:hover { border-color: var(--gold-line); }
+    .point-num {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 1.5rem;
+      font-weight: 900;
+      color: var(--gold);
+      line-height: 1;
+      flex-shrink: 0;
+      min-width: 28px;
+    }
+    .point-text {
+      font-size: 0.92rem;
+      color: var(--muted);
+      line-height: 1.65;
+    }
+    .point-text strong { color: var(--white); }
+
+    /* ════════════════════════════════════════════
+       SLIDES 3 / 4 / 5 — SCREENSHOT HERO SLIDES
+    ════════════════════════════════════════════ */
+    .hero-screenshot-slide { background: var(--bg); overflow: hidden; }
+    .hero-layout {
+      display: grid;
+      grid-template-columns: 340px 1fr;
+      gap: 48px;
+      align-items: start;
+    }
+    .hero-copy { }
+    .hero-visual { }
+    .step-badges {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 20px;
+    }
+    .step-badge {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+    .step-badge-num {
+      width: 28px; height: 28px;
+      border-radius: 8px;
+      background: rgba(201,168,76,0.12);
+      border: 1px solid rgba(201,168,76,0.3);
+      color: var(--gold);
+      font-size: 0.78rem;
+      font-weight: 900;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      letter-spacing: 0.05em;
+    }
+    .step-badge-text {
+      font-size: 0.9rem;
+      color: var(--muted);
+      line-height: 1.6;
+      padding-top: 2px;
+    }
+    .step-badge-text strong { color: var(--white); }
+
+    /* ════════════════════════════════════════════
+       SLIDE 6 — MADE FOR BROADCAST
+    ════════════════════════════════════════════ */
+    #slide-6 { background: var(--bg); overflow: hidden; }
+    .broadcast-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: 32px;
+    }
+    .broadcast-card {
+      padding: 24px;
+      background: rgba(255,255,255,0.025);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      transition: border-color 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .broadcast-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--gold), transparent);
+    }
+    .broadcast-card:hover { border-color: var(--gold-line); }
+    .broadcast-card h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--white);
+      margin-bottom: 8px;
+    }
+    .broadcast-card p {
+      font-size: 0.88rem;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+    .broadcast-icon {
+      width: 36px; height: 36px;
+      border-radius: 9px;
+      background: rgba(201,168,76,0.1);
+      border: 1px solid rgba(201,168,76,0.25);
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 14px;
+    }
+    .broadcast-icon svg { width: 18px; height: 18px; }
+
+    /* ════════════════════════════════════════════
+       SLIDE 7 — DEPENDABLE & SELF-SERVE
+    ════════════════════════════════════════════ */
+    #slide-7 { background: var(--bg); overflow: hidden; }
+    .two-col-points {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 28px;
+      margin-top: 40px;
+    }
+    .big-point {
+      padding: 32px;
+      background: rgba(255,255,255,0.02);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      transition: border-color 0.3s ease;
+    }
+    .big-point:hover { border-color: var(--gold-line); }
+    .big-point-num {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 2.5rem;
+      font-weight: 900;
+      color: var(--gold);
+      line-height: 1;
+      margin-bottom: 16px;
+    }
+    .big-point h3 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--white);
+      margin-bottom: 10px;
+      line-height: 1.3;
+    }
+    .big-point p {
+      font-size: 0.9rem;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    /* ════════════════════════════════════════════
+       SLIDE 8 — WHAT'S NEXT
+    ════════════════════════════════════════════ */
+    #slide-8 { background: var(--bg); overflow: hidden; }
+    .phases-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      margin-top: 40px;
+    }
+    .phase-box {
+      padding: 32px;
+      border-radius: 16px;
+      position: relative;
+      overflow: hidden;
+    }
+    .phase-box.current {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+    .phase-box.next {
+      background: rgba(201,168,76,0.05);
+      border: 1px solid var(--gold-line);
+    }
+    .phase-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 12px;
+      border-radius: 100px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+    .phase-pill.done { background: rgba(60,180,120,0.1); border: 1px solid rgba(60,180,120,0.25); color: #60d090; }
+    .phase-pill.coming { background: rgba(201,168,76,0.1); border: 1px solid var(--gold-line); color: var(--gold); }
+    .phase-box h3 { font-size: 1.25rem; font-weight: 800; color: var(--white); margin-bottom: 12px; }
+    .phase-box p {
+      font-size: 0.9rem;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+    .phase-box p strong { color: var(--white); }
+    .phase-note {
+      margin-top: 12px;
+      padding: 12px 16px;
+      background: rgba(201,168,76,0.07);
+      border-radius: 8px;
+      border: 1px solid rgba(201,168,76,0.15);
+      font-size: 0.82rem;
+      color: var(--gold);
+      line-height: 1.5;
+    }
+
+    /* ════════════════════════════════════════════
+       SLIDE 9 — CLOSE
+    ════════════════════════════════════════════ */
+    #slide-9 {
+      background: var(--bg);
+      overflow: hidden;
+      text-align: center;
+    }
+    #slide-9 .slide-inner { position: relative; z-index: 2; text-align: center; }
+    .close-headline {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: clamp(2.2rem, 4.5vw, 4.2rem);
+      font-weight: 900;
+      line-height: 1.05;
+      color: var(--white);
+      margin-bottom: 24px;
+    }
+    .close-headline em { color: var(--gold); font-style: normal; }
+    .close-sub {
+      font-size: clamp(1rem, 1.6vw, 1.2rem);
+      color: var(--muted);
+      line-height: 1.65;
+      max-width: 560px;
+      margin: 0 auto;
+    }
+    .close-rule {
+      width: 80px; height: 2px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+      margin: 36px auto;
+    }
+    .close-tags {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+    .close-tag {
+      padding: 8px 18px;
+      border-radius: 100px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border);
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--muted);
+      letter-spacing: 0.04em;
+    }
+    .close-tag.highlight {
+      background: rgba(201,168,76,0.1);
+      border-color: var(--gold-line);
+      color: var(--gold);
+    }
+    .close-mark {
+      margin-top: 40px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.3);
+    }
+    .close-mark span { color: var(--gold); }
+
+    /* ─────────────────────────────────────────────
+       RESPONSIVE
+    ───────────────────────────────────────────── */
+    @media (max-width: 900px) {
+      .slide { padding: 56px 28px 72px; }
+      #slide-2 .what-layout { grid-template-columns: 1fr; gap: 28px; }
+      .hero-layout { grid-template-columns: 1fr; gap: 28px; }
+      .broadcast-grid { grid-template-columns: 1fr; }
+      .two-col-points { grid-template-columns: 1fr; gap: 16px; }
+      .phases-layout { grid-template-columns: 1fr; gap: 16px; }
+    }
+
+    @media (max-width: 600px) {
+      .slide { padding: 48px 16px 64px; }
+      .cover-meta { flex-direction: column; gap: 10px; }
+      .nav-btn { width: 38px; height: 38px; }
+      #btn-prev { left: 6px; }
+      #btn-next { right: 6px; }
+      .close-tags { gap: 8px; }
+      .close-tag { font-size: 0.72rem; padding: 6px 12px; }
+      .broadcast-grid { grid-template-columns: 1fr; }
+      .two-col-points { grid-template-columns: 1fr; }
+      .phases-layout { grid-template-columns: 1fr; }
+    }
+
+    /* ─────────────────────────────────────────────
+       UTILITIES
+    ───────────────────────────────────────────── */
+    .sr-only {
+      position: absolute;
+      width: 1px; height: 1px;
+      padding: 0; margin: -1px;
+      overflow: hidden;
+      clip: rect(0,0,0,0);
+      white-space: nowrap;
+      border: 0;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ─── PROGRESS BAR ─────────────────────────── -->
+<div id="progress-bar" role="progressbar" aria-label="Presentation progress" aria-valuenow="1" aria-valuemin="1" aria-valuemax="9"></div>
+
+<!-- ─── SLIDE COUNTER ────────────────────────── -->
+<div id="slide-counter" aria-live="polite" aria-atomic="true">
+  <span id="current-num">1</span> / 9
+</div>
+
+<!-- ─── NAVIGATION ───────────────────────────── -->
+<button id="btn-prev" class="nav-btn" aria-label="Previous slide">
+  <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+</button>
+<button id="btn-next" class="nav-btn" aria-label="Next slide">
+  <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+</button>
+
+<!-- Mobile tap zones -->
+<div id="tap-prev" class="tap-zone tap-prev" aria-hidden="true"></div>
+<div id="tap-next" class="tap-zone tap-next" aria-hidden="true"></div>
+
+<!-- ─── DOT INDICATORS ───────────────────────── -->
+<nav id="dots" aria-label="Slide navigation">
+  <!-- injected by JS -->
+</nav>
+
+<!-- ─── DECK ─────────────────────────────────── -->
+<main id="deck" aria-label="Presentation">
+
+  <!-- ═══════════════════════════════════════════
+       SLIDE 1 — COVER
+  ════════════════════════════════════════════ -->
+  <section id="slide-1" class="slide active" role="region" aria-label="Cover: Broadcast-ready visuals in seconds">
+    <div class="grid-lines" aria-hidden="true"></div>
+    <div class="glow-orb" aria-hidden="true"></div>
+    <div class="glow-orb-2" aria-hidden="true"></div>
+
+    <div class="slide-inner">
+      <div class="anim-1">
+        <div class="logo-badge" aria-label="Al Arabiya AI Automation">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--gold)" aria-hidden="true">
+            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+          </svg>
+          <span>Al Arabiya AI Automation</span>
+        </div>
+      </div>
+
+      <div class="anim-2">
+        <h1 class="display">
+          Broadcast-ready visuals.<br/>
+          <em>In seconds.</em>
+        </h1>
+      </div>
+
+      <div class="anim-3">
+        <p class="cover-tagline">An internal tool for the graphics department — upload an image, pick a preset, get a broadcast-ready version back.</p>
+      </div>
+
+      <div class="anim-4">
+        <div class="cover-divider" aria-hidden="true"></div>
+      </div>
+
+      <div class="anim-5">
+        <div class="cover-meta">
+          <span>Graphics Department</span>
+          <span aria-hidden="true">·</span>
+          <span>Internal Tool</span>
+          <span aria-hidden="true">·</span>
+          <span>Phase 1</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════
+       SLIDE 2 — WHAT IT IS
+  ════════════════════════════════════════════ -->
+  <section id="slide-2" class="slide" role="region" aria-label="What it is">
+
+    <div class="slide-inner">
+      <p class="overline anim-1">The Tool</p>
+      <h2 class="headline anim-2">What it is</h2>
+      <div class="gold-rule anim-2" aria-hidden="true"></div>
+
+      <div class="what-layout">
+        <div>
+          <p class="body-text anim-3">A simple, internal web tool for the Al Arabiya graphics team. A designer uploads an image, chooses a preset, and the system returns an AI-transformed version that's ready for air — then downloads it. It runs on the channel's own AI subscriptions, on the team's own network.</p>
+        </div>
+
+        <div class="what-points anim-4" role="list" aria-label="Key points about the tool">
+          <div class="point-item" role="listitem">
+            <div class="point-num" aria-hidden="true">1</div>
+            <p class="point-text"><strong>Upload → Preset → Result.</strong> That's the whole flow.</p>
+          </div>
+          <div class="point-item" role="listitem">
+            <div class="point-num" aria-hidden="true">2</div>
+            <p class="point-text"><strong>No technical skill needed</strong> — it's built for designers, not engineers.</p>
+          </div>
+          <div class="point-item" role="listitem">
+            <div class="point-num" aria-hidden="true">3</div>
+            <p class="point-text"><strong>Everything self-serve:</strong> the team controls its own styles.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════
+       SLIDE 3 — HOW IT WORKS  [shots/cropper.png]
+  ════════════════════════════════════════════ -->
+  <section id="slide-3" class="slide hero-screenshot-slide" role="region" aria-label="How it works — cropping step">
+
+    <div class="slide-inner">
+      <p class="overline anim-1">The Workflow</p>
+      <h2 class="headline anim-2">How it works</h2>
+      <div class="gold-rule anim-2" aria-hidden="true"></div>
+
+      <div class="hero-layout">
+        <div class="hero-copy anim-3">
+          <div class="step-badges" role="list" aria-label="Three steps to get a broadcast-ready visual">
+            <div class="step-badge" role="listitem">
+              <div class="step-badge-num" aria-label="Step 1">01</div>
+              <p class="step-badge-text"><strong>Upload your image.</strong></p>
+            </div>
+            <div class="step-badge" role="listitem">
+              <div class="step-badge-num" aria-label="Step 2">02</div>
+              <p class="step-badge-text"><strong>Pick a preset</strong> (the look you want) and crop to the aspect ratio you need.</p>
+            </div>
+            <div class="step-badge" role="listitem">
+              <div class="step-badge-num" aria-label="Step 3">03</div>
+              <p class="step-badge-text"><strong>The system generates it;</strong> review and download.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="hero-visual anim-scale">
+          <div class="screenshot-frame">
+            <div class="browser-bar" aria-hidden="true">
+              <div class="dot-row"><span></span><span></span><span></span></div>
+            </div>
+            <img
+              src="shots/cropper.png"
+              alt="The cropping interface — a designer reframes a source image and selects the target aspect ratio before generating"
+              loading="lazy"
+              width="1200"
+              height="650"
+            />
+          </div>
+          <p class="screenshot-caption">Cropping step — choose the exact aspect ratio and reframe the shot before generating.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════
+       SLIDE 4 — PRESETS  [shots/presets.png]
+  ════════════════════════════════════════════ -->
+  <section id="slide-4" class="slide hero-screenshot-slide" role="region" aria-label="Presets — your saved looks">
+
+    <div class="slide-inner">
+      <p class="overline anim-1">Styles</p>
+      <h2 class="headline anim-2">Presets — your saved looks</h2>
+      <div class="gold-rule anim-2" aria-hidden="true"></div>
+
+      <div class="hero-layout">
+        <div class="hero-copy anim-3">
+          <p class="body-text" style="margin-bottom:20px;">Every style the tool can apply is saved as a "preset." A designer just picks one and the system applies that exact treatment — no prompt-writing, no guesswork.</p>
+
+          <div class="step-badges" role="list" aria-label="What each preset holds">
+            <div class="step-badge" role="listitem">
+              <div class="step-badge-num" aria-hidden="true">
+                <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><polyline points="2 6 5 9 10 3"/></svg>
+              </div>
+              <p class="step-badge-text">A name, description, and the AI model to use</p>
+            </div>
+            <div class="step-badge" role="listitem">
+              <div class="step-badge-num" aria-hidden="true">
+                <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><polyline points="2 6 5 9 10 3"/></svg>
+              </div>
+              <p class="step-badge-text">Whether it's an image or video style</p>
+            </div>
+            <div class="step-badge" role="listitem">
+              <div class="step-badge-num" aria-hidden="true">
+                <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><polyline points="2 6 5 9 10 3"/></svg>
+              </div>
+              <p class="step-badge-text">An optional locked style reference so every frame in a set matches</p>
+            </div>
+            <div class="step-badge" role="listitem">
+              <div class="step-badge-num" aria-hidden="true">
+                <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><polyline points="2 6 5 9 10 3"/></svg>
+              </div>
+              <p class="step-badge-text"><strong>A new preset can be added in minutes</strong> from a settings page — no developer, no waiting for a new release.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="hero-visual anim-scale">
+          <div class="screenshot-frame">
+            <div class="browser-bar" aria-hidden="true">
+              <div class="dot-row"><span></span><span></span><span></span></div>
+            </div>
+            <img
+              src="shots/presets.png"
+              alt="The presets management screen showing a list of saved visual styles with names, descriptions, and settings"
+              loading="lazy"
+              width="1200"
+              height="650"
+            />
+          </div>
+          <p class="screenshot-caption">The presets screen — create, edit, and manage the available styles.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════
+       SLIDE 5 — THE RESULT  [shots/result.png]
+  ════════════════════════════════════════════ -->
+  <section id="slide-5" class="slide hero-screenshot-slide" role="region" aria-label="The result — original in, broadcast-ready out">
+
+    <div class="slide-inner">
+      <p class="overline anim-1">The Output</p>
+      <h2 class="headline anim-2">Original in, broadcast-ready out</h2>
+      <div class="gold-rule anim-2" aria-hidden="true"></div>
+
+      <div class="hero-layout">
+        <div class="hero-copy anim-3">
+          <p class="body-text">The result screen shows the generated frame, ready to download. The screenshot shows an original and its AI-enhanced version side by side.</p>
+
+          <div class="step-badges" style="margin-top:28px;" role="list" aria-label="Result screen actions">
+            <div class="step-badge" role="listitem">
+              <div class="step-badge-num" aria-hidden="true">
+                <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M6 2v6M3 6l3 3 3-3"/><line x1="2" y1="10" x2="10" y2="10"/></svg>
+              </div>
+              <p class="step-badge-text"><strong>Review</strong> the generated frame on screen</p>
+            </div>
+            <div class="step-badge" role="listitem">
+              <div class="step-badge-num" aria-hidden="true">
+                <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M6 2v6M3 6l3 3 3-3"/><line x1="2" y1="10" x2="10" y2="10"/></svg>
+              </div>
+              <p class="step-badge-text"><strong>Download</strong> it, or start over</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="hero-visual anim-scale">
+          <div class="screenshot-frame">
+            <div class="browser-bar" aria-hidden="true">
+              <div class="dot-row"><span></span><span></span><span></span></div>
+            </div>
+            <img
+              src="shots/result.png"
+              alt="The result screen showing an original image alongside its AI-generated broadcast-ready version, with a Download button"
+              loading="lazy"
+              width="1440"
+              height="900"
+            />
+          </div>
+          <p class="screenshot-caption">A finished generation — review it, then Download, or Start over.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════
+       SLIDE 6 — MADE FOR BROADCAST
+  ════════════════════════════════════════════ -->
+  <section id="slide-6" class="slide" role="region" aria-label="Made for broadcast">
+
+    <div class="slide-inner">
+      <p class="overline anim-1">Quality</p>
+      <h2 class="headline anim-2">Made for broadcast</h2>
+      <div class="gold-rule anim-2" aria-hidden="true"></div>
+
+      <div class="broadcast-grid anim-3" role="list" aria-label="Broadcast-quality features">
+        <article class="broadcast-card" role="listitem">
+          <div class="broadcast-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/>
+            </svg>
+          </div>
+          <h3>High resolution</h3>
+          <p>Full-HD-class and above, fit for the screen.</p>
+        </article>
+
+        <article class="broadcast-card" role="listitem">
+          <div class="broadcast-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="12" y1="3" x2="12" y2="21"/>
+            </svg>
+          </div>
+          <h3>Any aspect ratio you choose</h3>
+          <p>16:9, vertical, or whatever the segment needs.</p>
+        </article>
+
+        <article class="broadcast-card" role="listitem">
+          <div class="broadcast-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+          </div>
+          <h3>Composed for air</h3>
+          <p>The subject sits centered with room around it for on-screen graphics and overlays.</p>
+        </article>
+
+        <article class="broadcast-card" role="listitem">
+          <div class="broadcast-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>
+            </svg>
+          </div>
+          <h3>Consistent across a set</h3>
+          <p>A locked style reference keeps every frame in a package looking the same.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════
+       SLIDE 7 — DEPENDABLE & SELF-SERVE
+  ════════════════════════════════════════════ -->
+  <section id="slide-7" class="slide" role="region" aria-label="Dependable and in the team's hands">
+
+    <div class="slide-inner">
+      <p class="overline anim-1">Reliability</p>
+      <h2 class="headline anim-2">Dependable, and in the team's hands</h2>
+      <div class="gold-rule anim-2" aria-hidden="true"></div>
+
+      <div class="two-col-points anim-3" role="list" aria-label="Reliability and self-serve features">
+        <article class="big-point" role="listitem">
+          <div class="big-point-num" aria-hidden="true">01</div>
+          <h3>It doesn't get stuck.</h3>
+          <p>If a generation fails, it says so clearly and can be retried — it never locks up the tool.</p>
+        </article>
+
+        <article class="big-point" role="listitem">
+          <div class="big-point-num" aria-hidden="true">02</div>
+          <h3>It grows without rebuilds.</h3>
+          <p>Adding a new style — or a new AI model — is a setting, not a software project.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════
+       SLIDE 8 — WHAT'S NEXT (PHASE 2)
+  ════════════════════════════════════════════ -->
+  <section id="slide-8" class="slide" role="region" aria-label="What's next — Phase 2: motion">
+
+    <div class="slide-inner">
+      <p class="overline anim-1">Roadmap</p>
+      <h2 class="headline anim-2">What's next — motion</h2>
+      <div class="gold-rule anim-2" aria-hidden="true"></div>
+
+      <div class="phases-layout anim-3" role="list" aria-label="Product phases">
+        <div class="phase-box current" role="listitem" aria-label="Phase 1: Now — Images">
+          <span class="phase-pill done">
+            <svg viewBox="0 0 12 12" width="10" height="10" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><polyline points="2 6 5 9 10 3"/></svg>
+            Phase 1 — Now
+          </span>
+          <h3>Still Images</h3>
+          <p>Upload any image, pick a preset, get a broadcast-ready frame back. The whole flow the team already knows.</p>
+        </div>
+
+        <div class="phase-box next" role="listitem" aria-label="Phase 2: Coming — Motion">
+          <span class="phase-pill coming">
+            <svg viewBox="0 0 12 12" width="10" height="10" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="6" cy="6" r="5"/><polyline points="6 3 6 6 8 8"/></svg>
+            Phase 2 — Coming
+          </span>
+          <h3>Motion</h3>
+          <p>Phase 2 brings video — short generated "rushes" — using the <strong>same upload → preset → result flow</strong> the team already knows.</p>
+          <p class="phase-note">Presets already support an Image or Video type — the foundation is already in place.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════
+       SLIDE 9 — CLOSE
+  ════════════════════════════════════════════ -->
+  <section id="slide-9" class="slide" role="region" aria-label="Closing slide">
+    <div class="grid-lines" aria-hidden="true"></div>
+    <div class="glow-orb-center" aria-hidden="true"></div>
+
+    <div class="slide-inner">
+      <div class="anim-1">
+        <div class="logo-badge" style="margin:0 auto 28px;display:inline-flex;" aria-label="Al Arabiya AI Automation">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--gold);width:14px;height:14px;" aria-hidden="true">
+            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+          </svg>
+          <span>Al Arabiya AI Automation</span>
+        </div>
+      </div>
+
+      <div class="anim-2">
+        <h2 class="close-headline">Upload. Preset. <em>On air.</em></h2>
+      </div>
+
+      <div class="anim-3">
+        <p class="close-sub">A broadcast-ready visual in seconds — self-serve, on the channel's own tools.</p>
+      </div>
+
+      <div class="close-rule anim-4" aria-hidden="true"></div>
+
+      <div class="close-tags anim-5" role="list" aria-label="Key qualities">
+        <div class="close-tag highlight" role="listitem">Upload</div>
+        <div class="close-tag" role="listitem">Preset</div>
+        <div class="close-tag highlight" role="listitem">On air</div>
+        <div class="close-tag" role="listitem">Self-serve</div>
+        <div class="close-tag highlight" role="listitem">No technical skill needed</div>
+        <div class="close-tag" role="listitem">Phase 2: motion</div>
+      </div>
+
+      <div class="anim-5" style="margin-top:40px;">
+        <div class="close-mark">
+          <span>Al Arabiya</span> — Internal Graphics Tool
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<script>
+  (() => {
+    'use strict';
+
+    const TOTAL = 9;
+    let current = 0;
+
+    const deck       = document.getElementById('deck');
+    const slides     = Array.from(deck.querySelectorAll('.slide'));
+    const progressBar   = document.getElementById('progress-bar');
+    const currentNumEl  = document.getElementById('current-num');
+    const dotsNav    = document.getElementById('dots');
+    const btnPrev    = document.getElementById('btn-prev');
+    const btnNext    = document.getElementById('btn-next');
+
+    // ── Build dots ───────────────────────────────
+    slides.forEach((_, i) => {
+      const btn = document.createElement('button');
+      btn.className = 'dot' + (i === 0 ? ' active' : '');
+      btn.setAttribute('aria-label', `Go to slide ${i + 1}`);
+      btn.setAttribute('aria-current', i === 0 ? 'true' : 'false');
+      btn.addEventListener('click', () => goTo(i));
+      dotsNav.appendChild(btn);
+    });
+
+    const dots = Array.from(dotsNav.querySelectorAll('.dot'));
+
+    // ── Update UI ────────────────────────────────
+    function updateUI(prev, next) {
+      slides[prev].classList.remove('active');
+      slides[prev].classList.add('exit-left');
+      slides[next].classList.add('active');
+      slides[next].classList.remove('exit-left');
+
+      const prevSlide = slides[prev];
+      const onEnd = () => {
+        prevSlide.classList.remove('exit-left');
+        prevSlide.removeEventListener('transitionend', onEnd);
+      };
+      prevSlide.addEventListener('transitionend', onEnd);
+
+      dots[prev].classList.remove('active');
+      dots[prev].setAttribute('aria-current', 'false');
+      dots[next].classList.add('active');
+      dots[next].setAttribute('aria-current', 'true');
+
+      const pct = ((next + 1) / TOTAL) * 100;
+      progressBar.style.width = pct + '%';
+      progressBar.setAttribute('aria-valuenow', next + 1);
+
+      currentNumEl.textContent = next + 1;
+
+      btnPrev.style.opacity = next === 0 ? '0.3' : '1';
+      btnNext.style.opacity = next === TOTAL - 1 ? '0.3' : '1';
+    }
+
+    function goTo(index) {
+      if (index === current) return;
+      if (index < 0 || index >= TOTAL) return;
+      const prev = current;
+      current = index;
+      updateUI(prev, current);
+    }
+
+    function next() { goTo(current + 1); }
+    function prev() { goTo(current - 1); }
+
+    btnPrev.addEventListener('click', prev);
+    btnNext.addEventListener('click', next);
+
+    // ── Keyboard ─────────────────────────────────
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === 'ArrowDown') { e.preventDefault(); next(); }
+      if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')   { e.preventDefault(); prev(); }
+      if (e.key === 'Home') { e.preventDefault(); goTo(0); }
+      if (e.key === 'End')  { e.preventDefault(); goTo(TOTAL - 1); }
+    });
+
+    // ── Touch / swipe ────────────────────────────
+    let touchStartX = 0;
+    let touchStartY = 0;
+    deck.addEventListener('touchstart', (e) => {
+      touchStartX = e.touches[0].clientX;
+      touchStartY = e.touches[0].clientY;
+    }, { passive: true });
+    deck.addEventListener('touchend', (e) => {
+      const dx = e.changedTouches[0].clientX - touchStartX;
+      const dy = e.changedTouches[0].clientY - touchStartY;
+      if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 40) {
+        dx < 0 ? next() : prev();
+      }
+    }, { passive: true });
+
+    // ── Mobile tap zones ─────────────────────────
+    const tapPrevEl = document.getElementById('tap-prev');
+    const tapNextEl = document.getElementById('tap-next');
+    if (tapPrevEl) tapPrevEl.addEventListener('click', prev);
+    if (tapNextEl) tapNextEl.addEventListener('click', next);
+
+    // ── Initial state ────────────────────────────
+    btnPrev.style.opacity = '0.3';
+    progressBar.style.width = ((1 / TOTAL) * 100) + '%';
+
+  })();
+</script>
+</body>
+</html>
