@@ -391,10 +391,9 @@
       gap: 48px;
       align-items: start;
     }
-    .presets-copy {}
 
     /* ════════════════════════════════════════════
-       BEFORE/AFTER SLIDER
+       BEFORE/AFTER SLIDER — SHARED STYLES
     ════════════════════════════════════════════ */
     .ba-slide-wrap {
       background: var(--bg);
@@ -415,7 +414,7 @@
       text-align: center;
       margin-bottom: 24px;
     }
-    /* Slider container — aspect-ratio preserves image proportions */
+    /* Slider container — aspect-ratio preserves proportions */
     .ba-container {
       position: relative;
       width: 100%;
@@ -424,17 +423,22 @@
       border: 1px solid rgba(201,168,76,0.25);
       box-shadow: 0 8px 40px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.04);
       cursor: col-resize;
-      touch-action: none; /* prevent scroll interference during drag */
+      touch-action: none;
       user-select: none;
       -webkit-user-select: none;
     }
-    /* 4:5 portrait (slide 3) */
+    /* 4:5 portrait — single hero slider (slide 3) */
     .ba-container.ratio-4x5 {
       aspect-ratio: 4 / 5;
       max-width: min(340px, 80vw);
       margin: 0 auto;
     }
-    /* 16:9 landscape (slide 4) */
+    /* 4:5 portrait — paired sliders (slide 4) */
+    .ba-container.ratio-4x5-pair {
+      aspect-ratio: 4 / 5;
+      width: 100%;
+    }
+    /* 16:9 landscape (slide 5) */
     .ba-container.ratio-16x9 {
       aspect-ratio: 16 / 9;
       max-width: min(820px, 90vw);
@@ -455,11 +459,10 @@
       object-position: center;
       display: block;
       pointer-events: none;
-      draggable: false;
     }
-    /* After image clipped to the right half */
+    /* After image clipped to show only right of handle */
     .ba-after {
-      clip-path: inset(0 0 0 50%); /* inset from left = handle position; updated dynamically */
+      clip-path: inset(0 0 0 50%);
     }
     /* Divider line */
     .ba-divider {
@@ -488,7 +491,6 @@
       cursor: col-resize;
       border: none;
       padding: 0;
-      /* Keyboard focus */
     }
     .ba-handle:focus-visible {
       outline: 3px solid var(--gold);
@@ -529,14 +531,102 @@
     }
 
     /* ════════════════════════════════════════════
-       SLIDE 5 — CLOSE
+       SLIDE 4 — TWO PORTRAIT SLIDERS SIDE BY SIDE
     ════════════════════════════════════════════ */
-    #slide-5 {
+    #slide-4 {
+      background: var(--bg);
+      overflow: hidden;
+    }
+    /* Center the inner vertically but allow scroll if tall */
+    #slide-4 .ba-slide-inner {
+      align-items: center;
+    }
+    .dual-slider-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      width: 100%;
+      max-width: 720px;
+      margin: 0 auto;
+    }
+    .dual-slider-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+    }
+    .dual-slider-label {
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-top: 8px;
+      text-align: center;
+    }
+
+    /* ════════════════════════════════════════════
+       SLIDE 6 — STYLE GALLERY
+    ════════════════════════════════════════════ */
+    #slide-6 {
+      background: var(--bg);
+      overflow: hidden;
+    }
+    #slide-6 .slide-inner {
+      max-width: 1100px;
+    }
+    .gallery-header {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+    .gallery-subheading {
+      font-size: clamp(0.8rem, 1.2vw, 0.95rem);
+      color: var(--muted);
+      margin-top: 8px;
+      letter-spacing: 0.04em;
+    }
+    /* 3-column on desktop, 2 on tablet, auto-fit for phone */
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      width: 100%;
+    }
+    .gallery-tile {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+    .gallery-tile img {
+      width: 100%;
+      height: auto;
+      aspect-ratio: 16 / 9;
+      object-fit: cover;
+      border-radius: 8px;
+      border: 1px solid rgba(201,168,76,0.3);
+      display: block;
+    }
+    .gallery-tile-name {
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      font-variant: small-caps;
+      color: var(--gold);
+      text-align: center;
+      line-height: 1.3;
+    }
+
+    /* ════════════════════════════════════════════
+       SLIDE 7 — CLOSE
+    ════════════════════════════════════════════ */
+    #slide-7 {
       background: var(--bg);
       overflow: hidden;
       text-align: center;
     }
-    #slide-5 .slide-inner { position: relative; z-index: 2; text-align: center; }
+    #slide-7 .slide-inner { position: relative; z-index: 2; text-align: center; }
     .close-headline {
       font-family: 'Playfair Display', Georgia, serif;
       font-size: clamp(2.2rem, 4.5vw, 4.2rem);
@@ -565,12 +655,28 @@
     @media (max-width: 900px) {
       .slide { padding: 56px 24px 80px; }
       .presets-layout { grid-template-columns: 1fr; gap: 24px; }
+      .gallery-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+      /* Dual sliders: stack on mobile */
+      .dual-slider-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+        max-width: 340px;
+      }
     }
     @media (max-width: 600px) {
       .slide { padding: 52px 14px 80px; }
       .nav-btn { width: 40px; height: 40px; }
       #btn-prev { left: 6px; }
       #btn-next { right: 6px; }
+      .gallery-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+      .gallery-tile-name { font-size: 0.62rem; letter-spacing: 0.1em; }
+      /* Reduce handle size on very small screens for paired sliders */
+      .ba-container.ratio-4x5-pair .ba-handle { width: 38px; height: 38px; }
+      .ba-container.ratio-4x5-pair .ba-handle svg { width: 16px; height: 16px; }
+    }
+    /* Gallery: allow 1-col on very narrow */
+    @media (max-width: 380px) {
+      .gallery-grid { grid-template-columns: 1fr; }
     }
 
     /* ─────────────────────────────────────────────
@@ -590,11 +696,11 @@
 <body>
 
 <!-- ─── PROGRESS BAR ─────────────────────────── -->
-<div id="progress-bar" role="progressbar" aria-label="Presentation progress" aria-valuenow="1" aria-valuemin="1" aria-valuemax="5"></div>
+<div id="progress-bar" role="progressbar" aria-label="Presentation progress" aria-valuenow="1" aria-valuemin="1" aria-valuemax="7"></div>
 
 <!-- ─── SLIDE COUNTER ────────────────────────── -->
 <div id="slide-counter" aria-live="polite" aria-atomic="true">
-  <span id="current-num">1</span> / 5
+  <span id="current-num">1</span> / 7
 </div>
 
 <!-- ─── NAVIGATION ───────────────────────────── -->
@@ -605,7 +711,7 @@
   <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
 </button>
 
-<!-- Mobile tap zones (hidden on slider slides by JS) -->
+<!-- Mobile tap zones (disabled on slider slides by JS) -->
 <div id="tap-prev" class="tap-zone tap-prev" aria-hidden="true"></div>
 <div id="tap-next" class="tap-zone tap-next" aria-hidden="true"></div>
 
@@ -685,19 +791,19 @@
   </section>
 
   <!-- ═══════════════════════════════════════════
-       SLIDE 3 — DEMO: UPSCALE  [before/after slider, portrait 4:5]
+       SLIDE 3 — UPSCALE HERO  [portrait 4:5 slider]
+       before=shots/up-before.jpg  after=shots/up-after.jpg
   ════════════════════════════════════════════ -->
-  <section id="slide-3" class="slide ba-slide-wrap" role="region" aria-label="Demo: Upscale — low-resolution in, broadcast-resolution out">
+  <section id="slide-3" class="slide ba-slide-wrap" role="region" aria-label="Preset Upscale: low-resolution in, broadcast-resolution out">
 
     <div class="ba-slide-inner slide-inner">
       <div class="ba-header">
         <p class="overline anim-1">Preset — Upscale</p>
         <h2 class="headline anim-2">Low-resolution in. Broadcast-resolution out.</h2>
         <div class="gold-rule" style="margin:16px auto 8px;" aria-hidden="true"></div>
-        <p class="body-text anim-3" style="max-width:600px;margin:0 auto 20px;">A soft, low-res portrait, restored to sharp broadcast quality — same person, recovered detail.</p>
+        <p class="body-text anim-3" style="max-width:600px;margin:0 auto 20px;">A soft, low-res portrait restored to sharp broadcast quality — same person, recovered detail. Drag to compare.</p>
       </div>
 
-      <!-- BEFORE/AFTER SLIDER — portrait 4:5 -->
       <div class="anim-scale" style="width:100%;display:flex;flex-direction:column;align-items:center;">
         <div
           class="ba-container ratio-4x5"
@@ -705,17 +811,13 @@
           role="figure"
           aria-label="Before and after comparison: upscale preset. Drag the handle to compare."
         >
-          <!-- BEFORE layer (always fully visible) -->
           <div class="ba-before">
             <img src="shots/up-before.jpg" alt="Before: low-resolution portrait, soft and blurry" width="1000" height="1241" />
           </div>
-          <!-- AFTER layer (clipped, reveals right half) -->
           <div class="ba-after" id="ba-after-3">
             <img src="shots/up-after.jpg" alt="After: same portrait restored to sharp broadcast quality" width="1000" height="1241" />
           </div>
-          <!-- Divider -->
           <div class="ba-divider" id="ba-divider-3" aria-hidden="true"></div>
-          <!-- Handle — keyboard operable -->
           <button
             class="ba-handle"
             id="ba-handle-3"
@@ -729,7 +831,6 @@
               <polyline points="8 5 2 12 8 19"/><polyline points="16 5 22 12 16 19"/>
             </svg>
           </button>
-          <!-- Labels -->
           <span class="ba-label ba-label-before" aria-hidden="true">Before</span>
           <span class="ba-label ba-label-after" aria-hidden="true">After</span>
         </div>
@@ -739,36 +840,125 @@
   </section>
 
   <!-- ═══════════════════════════════════════════
-       SLIDE 4 — DEMO: CINEMATIC  [before/after slider, 16:9]
+       SLIDE 4 — MORE UPSCALES  [TWO portrait 4:5 sliders]
+       Slider A: shots/up2-before.jpg / shots/up2-after.jpg
+       Slider B: shots/up3-before.jpg / shots/up3-after.jpg
   ════════════════════════════════════════════ -->
-  <section id="slide-4" class="slide ba-slide-wrap" role="region" aria-label="Demo: Cinematic — an ordinary shot becomes a cinematic frame">
+  <section id="slide-4" class="slide ba-slide-wrap" role="region" aria-label="More upscales: it works on any face">
+
+    <div class="ba-slide-inner slide-inner">
+      <div class="ba-header">
+        <h2 class="headline anim-1">It works on any face.</h2>
+        <div class="gold-rule" style="margin:16px auto 8px;" aria-hidden="true"></div>
+      </div>
+
+      <div class="anim-scale" style="width:100%;">
+        <div class="dual-slider-grid">
+
+          <!-- Slider A -->
+          <div class="dual-slider-item">
+            <div
+              class="ba-container ratio-4x5-pair"
+              id="slider-4a"
+              role="figure"
+              aria-label="Before and after comparison: anchor headshot upscale. Drag to compare."
+            >
+              <div class="ba-before">
+                <img src="shots/up2-before.jpg" alt="Before: low-resolution anchor headshot" width="1000" height="1241" />
+              </div>
+              <div class="ba-after" id="ba-after-4a">
+                <img src="shots/up2-after.jpg" alt="After: anchor headshot restored to broadcast quality" width="1000" height="1241" />
+              </div>
+              <div class="ba-divider" id="ba-divider-4a" aria-hidden="true"></div>
+              <button
+                class="ba-handle"
+                id="ba-handle-4a"
+                aria-label="Drag to compare before and after anchor headshot. Use arrow keys to move."
+                aria-valuenow="50"
+                aria-valuemin="0"
+                aria-valuemax="100"
+                role="slider"
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <polyline points="8 5 2 12 8 19"/><polyline points="16 5 22 12 16 19"/>
+                </svg>
+              </button>
+              <span class="ba-label ba-label-before" aria-hidden="true">Before</span>
+              <span class="ba-label ba-label-after" aria-hidden="true">After</span>
+            </div>
+            <p class="dual-slider-label">Anchor headshot</p>
+          </div>
+
+          <!-- Slider B -->
+          <div class="dual-slider-item">
+            <div
+              class="ba-container ratio-4x5-pair"
+              id="slider-4b"
+              role="figure"
+              aria-label="Before and after comparison: studio portrait upscale. Drag to compare."
+            >
+              <div class="ba-before">
+                <img src="shots/up3-before.jpg" alt="Before: low-resolution studio portrait" width="1000" height="1241" />
+              </div>
+              <div class="ba-after" id="ba-after-4b">
+                <img src="shots/up3-after.jpg" alt="After: studio portrait restored to broadcast quality" width="1000" height="1241" />
+              </div>
+              <div class="ba-divider" id="ba-divider-4b" aria-hidden="true"></div>
+              <button
+                class="ba-handle"
+                id="ba-handle-4b"
+                aria-label="Drag to compare before and after studio portrait. Use arrow keys to move."
+                aria-valuenow="50"
+                aria-valuemin="0"
+                aria-valuemax="100"
+                role="slider"
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <polyline points="8 5 2 12 8 19"/><polyline points="16 5 22 12 16 19"/>
+                </svg>
+              </button>
+              <span class="ba-label ba-label-before" aria-hidden="true">Before</span>
+              <span class="ba-label ba-label-after" aria-hidden="true">After</span>
+            </div>
+            <p class="dual-slider-label">Studio portrait</p>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════
+       SLIDE 5 — RESTYLE CINEMATIC  [16:9 slider]
+       before=shots/cine-before.jpg  after=shots/cine-after.jpg
+  ════════════════════════════════════════════ -->
+  <section id="slide-5" class="slide ba-slide-wrap" role="region" aria-label="Preset Cinematic: an ordinary shot becomes a cinematic frame">
 
     <div class="ba-slide-inner slide-inner">
       <div class="ba-header">
         <p class="overline anim-1">Preset — Cinematic</p>
         <h2 class="headline anim-2">An ordinary shot becomes a cinematic frame.</h2>
         <div class="gold-rule" style="margin:16px auto 8px;" aria-hidden="true"></div>
-        <p class="body-text anim-3" style="max-width:600px;margin:0 auto 20px;">A flat phone snapshot, re-graded into a cinematic broadcast look — same scene, transformed mood.</p>
+        <p class="body-text anim-3" style="max-width:600px;margin:0 auto 20px;">A flat phone snapshot, re-graded into a cinematic broadcast look — same scene, transformed mood. Drag to compare.</p>
       </div>
 
-      <!-- BEFORE/AFTER SLIDER — landscape 16:9 -->
       <div class="anim-scale" style="width:100%;display:flex;flex-direction:column;align-items:center;">
         <div
           class="ba-container ratio-16x9"
-          id="slider-4"
+          id="slider-5"
           role="figure"
           aria-label="Before and after comparison: cinematic preset. Drag the handle to compare."
         >
           <div class="ba-before">
             <img src="shots/cine-before.jpg" alt="Before: flat phone snapshot with ordinary colours" width="1200" height="669" />
           </div>
-          <div class="ba-after" id="ba-after-4">
+          <div class="ba-after" id="ba-after-5">
             <img src="shots/cine-after.jpg" alt="After: same scene re-graded into a cinematic broadcast look" width="1200" height="669" />
           </div>
-          <div class="ba-divider" id="ba-divider-4" aria-hidden="true"></div>
+          <div class="ba-divider" id="ba-divider-5" aria-hidden="true"></div>
           <button
             class="ba-handle"
-            id="ba-handle-4"
+            id="ba-handle-5"
             aria-label="Drag to compare before and after. Use arrow keys to move."
             aria-valuenow="50"
             aria-valuemin="0"
@@ -788,9 +978,93 @@
   </section>
 
   <!-- ═══════════════════════════════════════════
-       SLIDE 5 — CLOSE
+       SLIDE 6 — STYLE GALLERY
+       6 tiles: image (16:9) + gold small-caps name caption
   ════════════════════════════════════════════ -->
-  <section id="slide-5" class="slide" role="region" aria-label="Closing slide">
+  <section id="slide-6" class="slide" role="region" aria-label="One shot, many looks — style variation gallery">
+
+    <div class="slide-inner">
+      <div class="gallery-header anim-1">
+        <h2 class="headline">One shot, many looks.</h2>
+        <p class="gallery-subheading">The same frame, through different named presets.</p>
+      </div>
+
+      <div class="gallery-grid anim-2" role="list">
+
+        <figure class="gallery-tile" role="listitem">
+          <img
+            src="shots/style-original.jpg"
+            alt="Original — unprocessed source frame"
+            width="900"
+            height="502"
+            loading="lazy"
+          />
+          <figcaption class="gallery-tile-name">Original</figcaption>
+        </figure>
+
+        <figure class="gallery-tile" role="listitem">
+          <img
+            src="shots/style-cinematic.jpg"
+            alt="Cinematic Teal and Orange — rich teal shadows, warm highlights"
+            width="900"
+            height="502"
+            loading="lazy"
+          />
+          <figcaption class="gallery-tile-name">Cinematic Teal &amp; Orange</figcaption>
+        </figure>
+
+        <figure class="gallery-tile" role="listitem">
+          <img
+            src="shots/style-noir-web.jpg"
+            alt="Noir — high-contrast black and white treatment"
+            width="900"
+            height="502"
+            loading="lazy"
+          />
+          <figcaption class="gallery-tile-name">Noir</figcaption>
+        </figure>
+
+        <figure class="gallery-tile" role="listitem">
+          <img
+            src="shots/style-golden-web.jpg"
+            alt="Golden Hour — warm amber glow reminiscent of sunset"
+            width="900"
+            height="502"
+            loading="lazy"
+          />
+          <figcaption class="gallery-tile-name">Golden Hour</figcaption>
+        </figure>
+
+        <figure class="gallery-tile" role="listitem">
+          <img
+            src="shots/style-steel-web.jpg"
+            alt="Steel Documentary — cool, desaturated documentary look"
+            width="900"
+            height="502"
+            loading="lazy"
+          />
+          <figcaption class="gallery-tile-name">Steel Documentary</figcaption>
+        </figure>
+
+        <figure class="gallery-tile" role="listitem">
+          <img
+            src="shots/style-vintage-web.jpg"
+            alt="Vintage Film — faded, halated vintage film emulation"
+            width="900"
+            height="502"
+            loading="lazy"
+          />
+          <figcaption class="gallery-tile-name">Vintage Film</figcaption>
+        </figure>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════
+       SLIDE 7 — CLOSE
+  ════════════════════════════════════════════ -->
+  <section id="slide-7" class="slide" role="region" aria-label="Closing slide">
     <div class="grid-lines" aria-hidden="true"></div>
     <div class="glow-orb-center" aria-hidden="true"></div>
 
@@ -823,11 +1097,11 @@
     'use strict';
 
     /* ─────────────────────────────────────────────
-       DECK NAVIGATION  (5 slides)
+       DECK NAVIGATION  (7 slides)
     ───────────────────────────────────────────── */
-    const TOTAL = 5;
-    // Slider slides (0-indexed): slides 3 and 4 = index 2 and 3
-    const SLIDER_SLIDES = new Set([2, 3]);
+    const TOTAL = 7;
+    // Slider slides (0-indexed): slides 3, 4, 5 = indices 2, 3, 4
+    const SLIDER_SLIDES = new Set([2, 3, 4]);
 
     let current = 0;
 
@@ -854,7 +1128,6 @@
     const dots = Array.from(dotsNav.querySelectorAll('.dot'));
 
     function setTapZoneVisibility(idx) {
-      // On slider slides, hide tap zones so they don't intercept drag events
       const hide = SLIDER_SLIDES.has(idx);
       if (tapPrevEl) tapPrevEl.style.display = hide ? 'none' : '';
       if (tapNextEl) tapNextEl.style.display = hide ? 'none' : '';
@@ -907,7 +1180,6 @@
 
     // Keyboard navigation
     document.addEventListener('keydown', (e) => {
-      // If focus is inside a slider handle, let the slider handle it
       if (document.activeElement && document.activeElement.classList.contains('ba-handle')) return;
       if (e.key === 'ArrowRight' || e.key === 'ArrowDown') { e.preventDefault(); next(); }
       if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')   { e.preventDefault(); prev(); }
@@ -923,12 +1195,11 @@
     deck.addEventListener('touchstart', (e) => {
       touchStartX = e.touches[0].clientX;
       touchStartY = e.touches[0].clientY;
-      // Check if touch started inside a slider container
       touchOnSlider = !!e.target.closest('.ba-container');
     }, { passive: true });
 
     deck.addEventListener('touchend', (e) => {
-      if (touchOnSlider) return; // slider handles its own touch
+      if (touchOnSlider) return;
       const dx = e.changedTouches[0].clientX - touchStartX;
       const dy = e.changedTouches[0].clientY - touchStartY;
       if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 40) {
@@ -943,7 +1214,7 @@
 
     /* ─────────────────────────────────────────────
        BEFORE/AFTER SLIDER COMPONENT
-       Works for both portrait (slide 3) and landscape (slide 4).
+       Shared init function — works for portrait and landscape.
     ───────────────────────────────────────────── */
     function initSlider(containerId, afterId, dividerId, handleId) {
       const container = document.getElementById(containerId);
@@ -953,19 +1224,14 @@
 
       if (!container || !afterEl || !divider || !handle) return;
 
-      let pct = 50; // percent (0–100)
+      let pct = 50;
       let dragging = false;
 
       function setPosition(newPct) {
         pct = Math.min(100, Math.max(0, newPct));
-        // Clip the after image: show only the portion to the right of the handle
-        // inset(top right bottom left) — inset from left by pct% reveals the right (after) side
         afterEl.style.clipPath = `inset(0 0 0 ${pct}%)`;
-        // Move divider line
         divider.style.left = pct + '%';
-        // Move handle circle
         handle.style.left = pct + '%';
-        // Update ARIA
         handle.setAttribute('aria-valuenow', Math.round(pct));
       }
 
@@ -974,7 +1240,7 @@
         return ((clientX - rect.left) / rect.width) * 100;
       }
 
-      // ── Mouse events ─────────────────────────
+      // ── Mouse ─────────────────────────────────
       container.addEventListener('mousedown', (e) => {
         e.preventDefault();
         e.stopPropagation();
@@ -989,14 +1255,11 @@
         setPosition(pctFromEvent(e.clientX));
       });
 
-      document.addEventListener('mouseup', (e) => {
-        if (!dragging) return;
-        dragging = false;
-      });
+      document.addEventListener('mouseup', () => { dragging = false; });
 
-      // ── Touch events ─────────────────────────
+      // ── Touch ─────────────────────────────────
       container.addEventListener('touchstart', (e) => {
-        e.stopPropagation(); // stop swipe from triggering slide nav
+        e.stopPropagation();
         dragging = true;
         setPosition(pctFromEvent(e.touches[0].clientX));
       }, { passive: true });
@@ -1004,7 +1267,7 @@
       container.addEventListener('touchmove', (e) => {
         if (!dragging) return;
         e.stopPropagation();
-        e.preventDefault(); // prevent page scroll during drag
+        e.preventDefault();
         setPosition(pctFromEvent(e.touches[0].clientX));
       }, { passive: false });
 
@@ -1013,26 +1276,30 @@
         dragging = false;
       }, { passive: true });
 
-      // ── Keyboard (handle must be focused) ────
+      // ── Keyboard ──────────────────────────────
       handle.addEventListener('keydown', (e) => {
         let step = 0;
         if (e.key === 'ArrowRight' || e.key === 'ArrowUp')   step =  2;
         if (e.key === 'ArrowLeft'  || e.key === 'ArrowDown') step = -2;
-        if (e.key === 'Home') { setPosition(0); e.preventDefault(); return; }
+        if (e.key === 'Home') { setPosition(0);   e.preventDefault(); return; }
         if (e.key === 'End')  { setPosition(100); e.preventDefault(); return; }
         if (step !== 0) {
           e.preventDefault();
-          e.stopPropagation(); // don't let slide nav see it
+          e.stopPropagation();
           setPosition(pct + step);
         }
       });
 
-      // Initialize at 50%
       setPosition(50);
     }
 
-    initSlider('slider-3', 'ba-after-3', 'ba-divider-3', 'ba-handle-3');
-    initSlider('slider-4', 'ba-after-4', 'ba-divider-4', 'ba-handle-4');
+    // Slide 3 — hero portrait upscale
+    initSlider('slider-3',  'ba-after-3',  'ba-divider-3',  'ba-handle-3');
+    // Slide 4 — two portrait upscales
+    initSlider('slider-4a', 'ba-after-4a', 'ba-divider-4a', 'ba-handle-4a');
+    initSlider('slider-4b', 'ba-after-4b', 'ba-divider-4b', 'ba-handle-4b');
+    // Slide 5 — cinematic 16:9
+    initSlider('slider-5',  'ba-after-5',  'ba-divider-5',  'ba-handle-5');
 
   })();
 </script>
