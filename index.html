@@ -619,7 +619,7 @@
     }
 
     /* ════════════════════════════════════════════
-       SLIDE 7 — AI ENGINE CHOICE
+       ENGINE SLIDE — AI ENGINE CHOICE (position 2)
     ════════════════════════════════════════════ */
     #slide-7 {
       background: var(--bg);
@@ -628,7 +628,7 @@
     .engine-layout {
       display: flex;
       flex-direction: column;
-      gap: 32px;
+      gap: 28px;
     }
     .engine-cards {
       display: grid;
@@ -668,20 +668,112 @@
       line-height: 1.65;
       color: var(--muted);
     }
+
+    /* Cost callout — the hero element */
+    .cost-callout {
+      background: linear-gradient(135deg, rgba(201,168,76,0.13) 0%, rgba(201,168,76,0.06) 100%);
+      border: 1px solid var(--gold-line);
+      border-radius: 14px;
+      padding: 28px 28px 24px;
+      position: relative;
+      overflow: hidden;
+    }
+    .cost-callout::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--gold), #e8c86a, transparent);
+      border-radius: 14px 14px 0 0;
+    }
+    .cost-callout-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 16px;
+    }
+    .cost-vs-grid {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 16px;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    .cost-col {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .cost-col-label {
+      font-size: clamp(0.7rem, 1vw, 0.8rem);
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .cost-col-value {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: clamp(1rem, 2vw, 1.35rem);
+      font-weight: 700;
+      line-height: 1.15;
+      color: var(--white);
+    }
+    .cost-col.cost-col--highlight .cost-col-value {
+      color: var(--gold);
+    }
+    .cost-vs-badge {
+      font-size: 0.7rem;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      color: rgba(255,255,255,0.35);
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 100px;
+      padding: 5px 10px;
+      text-transform: uppercase;
+      flex-shrink: 0;
+    }
+    .cost-detail {
+      font-size: clamp(0.8rem, 1.1vw, 0.92rem);
+      line-height: 1.65;
+      color: rgba(138,138,154,0.9);
+      border-top: 1px solid rgba(201,168,76,0.15);
+      padding-top: 16px;
+    }
+
     .engine-closing {
       font-size: clamp(0.9rem, 1.3vw, 1.05rem);
       line-height: 1.7;
       color: var(--gold);
       font-weight: 600;
       font-style: italic;
-      padding: 20px 24px;
+      padding: 18px 22px;
       border-left: 3px solid var(--gold-line);
       background: var(--gold-glow);
       border-radius: 0 8px 8px 0;
     }
+
     @media (max-width: 680px) {
       .engine-cards {
         grid-template-columns: 1fr;
+      }
+      .cost-vs-grid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+      }
+      .cost-vs-badge {
+        display: none;
+      }
+      .cost-col + .cost-col {
+        border-top: 1px solid rgba(201,168,76,0.15);
+        padding-top: 10px;
+      }
+    }
+    @media (min-width: 681px) and (max-width: 900px) {
+      .cost-vs-grid {
+        gap: 12px;
       }
     }
 
@@ -823,7 +915,64 @@
   </section>
 
   <!-- ═══════════════════════════════════════════
-       SLIDE 2 — PRESETS  [shots/presets.png]
+       SLIDE 2 (position) — AI ENGINE CHOICE
+       DOM id kept as slide-7 (content-named, not position-named)
+       JS indexes by DOM order, so this is index 1 → slide 2
+  ════════════════════════════════════════════ -->
+  <section id="slide-7" class="slide" role="region" aria-label="Your choice of AI engine">
+    <div class="grid-lines" aria-hidden="true"></div>
+    <div class="glow-orb-2" aria-hidden="true"></div>
+
+    <div class="slide-inner">
+      <div class="engine-layout">
+
+        <div class="anim-1">
+          <p class="overline">New</p>
+          <h2 class="headline">Your choice of AI engine.</h2>
+          <div class="gold-rule" aria-hidden="true"></div>
+          <p class="body-text">Switch engines anytime in Settings — the upload &rarr; preset &rarr; result flow stays exactly the same.</p>
+        </div>
+
+        <div class="engine-cards anim-2">
+
+          <article class="engine-card">
+            <h3 class="engine-card-title">Higgsfield</h3>
+            <p class="engine-card-text">The broadcast-grade default — highest resolution, built for air.</p>
+          </article>
+
+          <article class="engine-card">
+            <h3 class="engine-card-title">Gemini (Google)</h3>
+            <p class="engine-card-text">Runs on your existing Gemini subscription — a flat monthly fee, not per-image.</p>
+          </article>
+
+        </div>
+
+        <!-- COST CALLOUT — hero element -->
+        <div class="cost-callout anim-3" role="region" aria-label="Cost comparison">
+          <p class="cost-callout-label">The cost difference</p>
+          <div class="cost-vs-grid">
+            <div class="cost-col">
+              <span class="cost-col-label">The usual model</span>
+              <span class="cost-col-value">Per-image fees</span>
+            </div>
+            <span class="cost-vs-badge" aria-hidden="true">vs</span>
+            <div class="cost-col cost-col--highlight">
+              <span class="cost-col-label">With Gemini</span>
+              <span class="cost-col-value">One flat monthly subscription</span>
+            </div>
+          </div>
+          <p class="cost-detail">For a desk producing dozens of images a day, you pay a flat fee instead of paying per image — dramatically lower cost at volume.</p>
+        </div>
+
+        <p class="engine-closing anim-4">The win: far less cost — use the subscription you already pay for — with the same workflow and no vendor lock-in.</p>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════
+       SLIDE 3 (position) — PRESETS  [shots/presets.png]
+       DOM id: slide-2 (content-named)
   ════════════════════════════════════════════ -->
   <section id="slide-2" class="slide" role="region" aria-label="One preset. One consistent look.">
 
@@ -1129,43 +1278,6 @@
   </section>
 
   <!-- ═══════════════════════════════════════════
-       SLIDE 7 — AI ENGINE CHOICE
-  ════════════════════════════════════════════ -->
-  <section id="slide-7" class="slide" role="region" aria-label="Your choice of AI engine">
-    <div class="grid-lines" aria-hidden="true"></div>
-    <div class="glow-orb-2" aria-hidden="true"></div>
-
-    <div class="slide-inner">
-      <div class="engine-layout">
-
-        <div class="anim-1">
-          <p class="overline">New</p>
-          <h2 class="headline">Your choice of AI engine.</h2>
-          <div class="gold-rule" aria-hidden="true"></div>
-          <p class="body-text">Switch engines anytime in Settings — the upload &rarr; preset &rarr; result flow stays exactly the same.</p>
-        </div>
-
-        <div class="engine-cards anim-2">
-
-          <article class="engine-card">
-            <h3 class="engine-card-title">Higgsfield</h3>
-            <p class="engine-card-text">The broadcast-grade default — highest resolution, built for air.</p>
-          </article>
-
-          <article class="engine-card">
-            <h3 class="engine-card-title">Gemini (Google)</h3>
-            <p class="engine-card-text">Runs on your existing Gemini subscription — no per-image cost.</p>
-          </article>
-
-        </div>
-
-        <p class="engine-closing anim-3">Flexibility + cost control — use the subscription you already pay for, and never be locked to one vendor as the models keep improving.</p>
-
-      </div>
-    </div>
-  </section>
-
-  <!-- ═══════════════════════════════════════════
        SLIDE 8 — CLOSE
   ════════════════════════════════════════════ -->
   <section id="slide-8" class="slide" role="region" aria-label="Closing slide">
@@ -1204,9 +1316,10 @@
        DECK NAVIGATION  (8 slides)
     ───────────────────────────────────────────── */
     const TOTAL = 8;
-    // Slider slides (0-indexed): slides 3, 4, 5 = indices 2, 3, 4
-    // New slide 7 is at index 6 — NOT a slider, not added here.
-    const SLIDER_SLIDES = new Set([2, 3, 4]);
+    // Slider slides (0-indexed DOM order):
+    //   index 3 = Upscale hero (slide-3), index 4 = More upscales (slide-4), index 5 = Cinematic (slide-5)
+    // Engine slide is now index 1 (position 2) — NOT a slider.
+    const SLIDER_SLIDES = new Set([3, 4, 5]);
 
     let current = 0;
 
