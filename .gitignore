@@ -3,3 +3,9 @@ presentation-scroll.html
 presentation.html
 _pdfbuild.html
 *.pdf
+shots/portrait-hi.png
+shots/upscale-after.png
+shots/upscale-after-web.png
+shots/portrait-lowres.jpg
+shots/restyle-before.png
+shots/restyle-after.png

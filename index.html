@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Al Arabiya AI Automation — Broadcast-Ready Visuals. In Seconds.</title>
-  <meta name="description" content="An internal AI tool for Al Arabiya's graphics department — upload an image, pick a preset, get a broadcast-ready version back." />
+  <title>Al Arabiya AI Automation — See what it does.</title>
+  <meta name="description" content="A capability-focused look at what Al Arabiya's AI automation tool does — preset-driven image transformation with real before/after comparisons." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet" />
@@ -92,9 +92,10 @@
     #btn-next { right: 14px; }
     .nav-btn svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
+    /* Mobile tap zones — hidden on slider slides via JS */
     .tap-zone { display: none; }
     @media (max-width: 899px) {
-      .tap-zone { display: block; position: fixed; top: 0; bottom: 92px; width: 33%; z-index: 60; background: transparent; -webkit-tap-highlight-color: transparent; }
+      .tap-zone { display: block; position: fixed; top: 0; bottom: 92px; width: 28%; z-index: 60; background: transparent; -webkit-tap-highlight-color: transparent; }
       .tap-zone.tap-prev { left: 0; }
       .tap-zone.tap-next { right: 0; }
     }
@@ -114,12 +115,11 @@
     .dot {
       width: 6px; height: 6px;
       border-radius: 50%;
-      background: rgba(255,255,255,0.2);
+      background: transparent;
       cursor: pointer;
       transition: all 0.3s ease;
       border: none;
       padding: 0;
-      /* Ensure tap target is large enough (visually small but hit area enlarged via outline area) */
       min-width: 24px; min-height: 24px;
       display: flex; align-items: center; justify-content: center;
     }
@@ -194,24 +194,18 @@
       to   { opacity: 1; }
     }
     @keyframes scaleIn {
-      from { opacity: 0; transform: scale(0.92); }
+      from { opacity: 0; transform: scale(0.94); }
       to   { opacity: 1; transform: scale(1); }
     }
     @keyframes pulse-glow {
       0%, 100% { box-shadow: 0 0 24px rgba(201,168,76,0.2); }
       50%       { box-shadow: 0 0 48px rgba(201,168,76,0.45); }
     }
-    @keyframes shimmer {
-      0%   { background-position: -200% center; }
-      100% { background-position: 200% center; }
-    }
 
     .slide.active .anim-1 { animation: fadeUp 0.6s ease 0.1s both; }
     .slide.active .anim-2 { animation: fadeUp 0.6s ease 0.25s both; }
     .slide.active .anim-3 { animation: fadeUp 0.6s ease 0.4s both; }
     .slide.active .anim-4 { animation: fadeUp 0.6s ease 0.55s both; }
-    .slide.active .anim-5 { animation: fadeUp 0.6s ease 0.7s both; }
-    .slide.active .anim-fade { animation: fadeIn 0.8s ease 0.1s both; }
     .slide.active .anim-scale { animation: scaleIn 0.7s ease 0.3s both; }
 
     /* ─────────────────────────────────────────────
@@ -229,7 +223,7 @@
       letter-spacing: 0.2em;
       text-transform: uppercase;
       color: var(--gold);
-      margin-bottom: 16px;
+      margin-bottom: 12px;
     }
     .display {
       font-family: 'Playfair Display', Georgia, serif;
@@ -240,23 +234,65 @@
     }
     .display em { color: var(--gold); font-style: normal; }
     .headline {
-      font-size: clamp(1.8rem, 3.5vw, 3.4rem);
-      font-weight: 800;
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: clamp(1.6rem, 3vw, 3rem);
+      font-weight: 900;
       line-height: 1.1;
       color: var(--white);
     }
-    .headline em { color: var(--gold); font-style: normal; }
     .body-text {
-      font-size: clamp(0.95rem, 1.5vw, 1.15rem);
+      font-size: clamp(0.9rem, 1.4vw, 1.1rem);
       line-height: 1.75;
       color: var(--muted);
-      max-width: 680px;
     }
     .gold-rule {
-      width: 56px; height: 3px;
+      width: 48px; height: 3px;
       background: linear-gradient(90deg, var(--gold), transparent);
       border-radius: 2px;
-      margin-bottom: 28px;
+      margin: 16px 0 28px;
+    }
+
+    /* ─────────────────────────────────────────────
+       BACKGROUND DECORATIONS
+    ───────────────────────────────────────────── */
+    .grid-lines {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+      background-size: 80px 80px;
+      pointer-events: none;
+    }
+    .glow-orb {
+      position: absolute;
+      width: 800px; height: 800px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(201,168,76,0.12) 0%, transparent 70%);
+      top: -200px; right: -200px;
+      z-index: 1;
+      pointer-events: none;
+    }
+    .glow-orb-2 {
+      position: absolute;
+      width: 500px; height: 500px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(120,80,200,0.07) 0%, transparent 70%);
+      bottom: -100px; left: -100px;
+      z-index: 1;
+      pointer-events: none;
+    }
+    .glow-orb-center {
+      position: absolute;
+      width: 700px; height: 700px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(201,168,76,0.1) 0%, transparent 70%);
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 1;
+      pointer-events: none;
+      animation: pulse-glow 4s ease-in-out infinite;
     }
 
     /* ─────────────────────────────────────────────
@@ -307,49 +343,6 @@
       font-style: italic;
     }
 
-    /* ─────────────────────────────────────────────
-       BACKGROUND DECORATIONS (cover / close)
-    ───────────────────────────────────────────── */
-    .grid-lines {
-      position: absolute;
-      inset: 0;
-      z-index: 1;
-      background-image:
-        linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
-      background-size: 80px 80px;
-      pointer-events: none;
-    }
-    .glow-orb {
-      position: absolute;
-      width: 800px; height: 800px;
-      border-radius: 50%;
-      background: radial-gradient(circle, rgba(201,168,76,0.12) 0%, transparent 70%);
-      top: -200px; right: -200px;
-      z-index: 1;
-      pointer-events: none;
-    }
-    .glow-orb-2 {
-      position: absolute;
-      width: 500px; height: 500px;
-      border-radius: 50%;
-      background: radial-gradient(circle, rgba(120,80,200,0.07) 0%, transparent 70%);
-      bottom: -100px; left: -100px;
-      z-index: 1;
-      pointer-events: none;
-    }
-    .glow-orb-center {
-      position: absolute;
-      width: 700px; height: 700px;
-      border-radius: 50%;
-      background: radial-gradient(circle, rgba(201,168,76,0.1) 0%, transparent 70%);
-      top: 50%; left: 50%;
-      transform: translate(-50%, -50%);
-      z-index: 1;
-      pointer-events: none;
-      animation: pulse-glow 4s ease-in-out infinite;
-    }
-
     /* ════════════════════════════════════════════
        SLIDE 1 — COVER
     ════════════════════════════════════════════ */
@@ -374,7 +367,7 @@
       font-size: clamp(1rem, 1.8vw, 1.25rem);
       color: var(--muted);
       font-weight: 400;
-      letter-spacing: 0.04em;
+      letter-spacing: 0.02em;
       margin-top: 24px;
       max-width: 600px;
       margin-left: auto;
@@ -387,259 +380,163 @@
       background: linear-gradient(to bottom, transparent, var(--gold), transparent);
       margin: 36px auto;
     }
-    .cover-meta {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-wrap: wrap;
-      gap: 20px 32px;
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: rgba(255,255,255,0.3);
-    }
-    .cover-meta span { color: rgba(255,255,255,0.5); }
 
     /* ════════════════════════════════════════════
-       SLIDE 2 — WHAT IT IS
+       SLIDE 2 — PRESETS
     ════════════════════════════════════════════ */
     #slide-2 { background: var(--bg); overflow: hidden; }
-    #slide-2 .what-layout {
+    .presets-layout {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 56px;
-      align-items: start;
-      margin-top: 8px;
-    }
-    #slide-2 .what-points {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-      margin-top: 8px;
-    }
-    .point-item {
-      display: flex;
-      gap: 16px;
-      align-items: flex-start;
-      padding: 18px 20px;
-      background: rgba(255,255,255,0.025);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      transition: border-color 0.3s ease;
-    }
-    .point-item:hover { border-color: var(--gold-line); }
-    .point-num {
-      font-family: 'Playfair Display', Georgia, serif;
-      font-size: 1.5rem;
-      font-weight: 900;
-      color: var(--gold);
-      line-height: 1;
-      flex-shrink: 0;
-      min-width: 28px;
-    }
-    .point-text {
-      font-size: 0.92rem;
-      color: var(--muted);
-      line-height: 1.65;
-    }
-    .point-text strong { color: var(--white); }
-
-    /* ════════════════════════════════════════════
-       SLIDES 3 / 4 / 5 — SCREENSHOT HERO SLIDES
-    ════════════════════════════════════════════ */
-    .hero-screenshot-slide { background: var(--bg); overflow: hidden; }
-    .hero-layout {
-      display: grid;
-      grid-template-columns: 340px 1fr;
+      grid-template-columns: 1fr 1.6fr;
       gap: 48px;
       align-items: start;
     }
-    .hero-copy { }
-    .hero-visual { }
-    .step-badges {
+    .presets-copy {}
+
+    /* ════════════════════════════════════════════
+       BEFORE/AFTER SLIDER
+    ════════════════════════════════════════════ */
+    .ba-slide-wrap {
+      background: var(--bg);
+      overflow: hidden;
+    }
+    /* Full-slide layout for slider slides */
+    .ba-slide-inner {
+      width: 100%;
+      max-width: 1100px;
+      position: relative;
+      z-index: 2;
       display: flex;
       flex-direction: column;
-      gap: 12px;
-      margin-top: 20px;
-    }
-    .step-badge {
-      display: flex;
-      align-items: flex-start;
-      gap: 12px;
-    }
-    .step-badge-num {
-      width: 28px; height: 28px;
-      border-radius: 8px;
-      background: rgba(201,168,76,0.12);
-      border: 1px solid rgba(201,168,76,0.3);
-      color: var(--gold);
-      font-size: 0.78rem;
-      font-weight: 900;
-      display: flex; align-items: center; justify-content: center;
-      flex-shrink: 0;
-      letter-spacing: 0.05em;
-    }
-    .step-badge-text {
-      font-size: 0.9rem;
-      color: var(--muted);
-      line-height: 1.6;
-      padding-top: 2px;
-    }
-    .step-badge-text strong { color: var(--white); }
-
-    /* ════════════════════════════════════════════
-       SLIDE 6 — MADE FOR BROADCAST
-    ════════════════════════════════════════════ */
-    #slide-6 { background: var(--bg); overflow: hidden; }
-    .broadcast-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-      margin-top: 32px;
-    }
-    .broadcast-card {
-      padding: 24px;
-      background: rgba(255,255,255,0.025);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      transition: border-color 0.3s ease;
-      position: relative;
-      overflow: hidden;
-    }
-    .broadcast-card::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 2px;
-      background: linear-gradient(90deg, var(--gold), transparent);
-    }
-    .broadcast-card:hover { border-color: var(--gold-line); }
-    .broadcast-card h3 {
-      font-size: 1rem;
-      font-weight: 700;
-      color: var(--white);
-      margin-bottom: 8px;
-    }
-    .broadcast-card p {
-      font-size: 0.88rem;
-      color: var(--muted);
-      line-height: 1.6;
-    }
-    .broadcast-icon {
-      width: 36px; height: 36px;
-      border-radius: 9px;
-      background: rgba(201,168,76,0.1);
-      border: 1px solid rgba(201,168,76,0.25);
-      display: flex; align-items: center; justify-content: center;
-      margin-bottom: 14px;
-    }
-    .broadcast-icon svg { width: 18px; height: 18px; }
-
-    /* ════════════════════════════════════════════
-       SLIDE 7 — DEPENDABLE & SELF-SERVE
-    ════════════════════════════════════════════ */
-    #slide-7 { background: var(--bg); overflow: hidden; }
-    .two-col-points {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 28px;
-      margin-top: 40px;
-    }
-    .big-point {
-      padding: 32px;
-      background: rgba(255,255,255,0.02);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      transition: border-color 0.3s ease;
-    }
-    .big-point:hover { border-color: var(--gold-line); }
-    .big-point-num {
-      font-family: 'Playfair Display', Georgia, serif;
-      font-size: 2.5rem;
-      font-weight: 900;
-      color: var(--gold);
-      line-height: 1;
-      margin-bottom: 16px;
-    }
-    .big-point h3 {
-      font-size: 1.05rem;
-      font-weight: 700;
-      color: var(--white);
-      margin-bottom: 10px;
-      line-height: 1.3;
-    }
-    .big-point p {
-      font-size: 0.9rem;
-      color: var(--muted);
-      line-height: 1.7;
-    }
-
-    /* ════════════════════════════════════════════
-       SLIDE 8 — WHAT'S NEXT
-    ════════════════════════════════════════════ */
-    #slide-8 { background: var(--bg); overflow: hidden; }
-    .phases-layout {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 24px;
-      margin-top: 40px;
-    }
-    .phase-box {
-      padding: 32px;
-      border-radius: 16px;
-      position: relative;
-      overflow: hidden;
-    }
-    .phase-box.current {
-      background: rgba(255,255,255,0.03);
-      border: 1px solid rgba(255,255,255,0.08);
-    }
-    .phase-box.next {
-      background: rgba(201,168,76,0.05);
-      border: 1px solid var(--gold-line);
-    }
-    .phase-pill {
-      display: inline-flex;
       align-items: center;
-      gap: 6px;
-      padding: 4px 12px;
+    }
+    .ba-header {
+      width: 100%;
+      text-align: center;
+      margin-bottom: 24px;
+    }
+    /* Slider container — aspect-ratio preserves image proportions */
+    .ba-container {
+      position: relative;
+      width: 100%;
+      overflow: hidden;
+      border-radius: 12px;
+      border: 1px solid rgba(201,168,76,0.25);
+      box-shadow: 0 8px 40px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.04);
+      cursor: col-resize;
+      touch-action: none; /* prevent scroll interference during drag */
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    /* 4:5 portrait (slide 3) */
+    .ba-container.ratio-4x5 {
+      aspect-ratio: 4 / 5;
+      max-width: min(340px, 80vw);
+      margin: 0 auto;
+    }
+    /* 16:9 landscape (slide 4) */
+    .ba-container.ratio-16x9 {
+      aspect-ratio: 16 / 9;
+      max-width: min(820px, 90vw);
+      margin: 0 auto;
+    }
+    .ba-before,
+    .ba-after {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+    }
+    .ba-before img,
+    .ba-after img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+      display: block;
+      pointer-events: none;
+      draggable: false;
+    }
+    /* After image clipped to the right half */
+    .ba-after {
+      clip-path: inset(0 0 0 50%); /* inset from left = handle position; updated dynamically */
+    }
+    /* Divider line */
+    .ba-divider {
+      position: absolute;
+      top: 0; bottom: 0;
+      left: 50%;
+      width: 2px;
+      background: var(--white);
+      transform: translateX(-50%);
+      z-index: 10;
+      pointer-events: none;
+      box-shadow: 0 0 8px rgba(0,0,0,0.5);
+    }
+    /* Handle circle */
+    .ba-handle {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 48px; height: 48px;
+      border-radius: 50%;
+      background: var(--white);
+      box-shadow: 0 2px 16px rgba(0,0,0,0.5);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 11;
+      cursor: col-resize;
+      border: none;
+      padding: 0;
+      /* Keyboard focus */
+    }
+    .ba-handle:focus-visible {
+      outline: 3px solid var(--gold);
+      outline-offset: 3px;
+    }
+    .ba-handle svg {
+      width: 22px; height: 22px;
+      color: #0d0e12;
+      pointer-events: none;
+    }
+    /* BEFORE / AFTER pill labels */
+    .ba-label {
+      position: absolute;
+      top: 12px;
+      padding: 4px 10px;
       border-radius: 100px;
       font-size: 10px;
       font-weight: 700;
       letter-spacing: 0.12em;
       text-transform: uppercase;
-      margin-bottom: 16px;
+      background: rgba(13,14,18,0.75);
+      border: 1px solid rgba(255,255,255,0.15);
+      color: var(--white);
+      z-index: 12;
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      pointer-events: none;
     }
-    .phase-pill.done { background: rgba(60,180,120,0.1); border: 1px solid rgba(60,180,120,0.25); color: #60d090; }
-    .phase-pill.coming { background: rgba(201,168,76,0.1); border: 1px solid var(--gold-line); color: var(--gold); }
-    .phase-box h3 { font-size: 1.25rem; font-weight: 800; color: var(--white); margin-bottom: 12px; }
-    .phase-box p {
-      font-size: 0.9rem;
+    .ba-label-before { left: 12px; }
+    .ba-label-after  { right: 12px; }
+    /* Hint text below slider */
+    .ba-hint {
+      font-size: 0.75rem;
       color: var(--muted);
-      line-height: 1.7;
-    }
-    .phase-box p strong { color: var(--white); }
-    .phase-note {
-      margin-top: 12px;
-      padding: 12px 16px;
-      background: rgba(201,168,76,0.07);
-      border-radius: 8px;
-      border: 1px solid rgba(201,168,76,0.15);
-      font-size: 0.82rem;
-      color: var(--gold);
-      line-height: 1.5;
+      margin-top: 10px;
+      letter-spacing: 0.06em;
+      text-align: center;
     }
 
     /* ════════════════════════════════════════════
-       SLIDE 9 — CLOSE
+       SLIDE 5 — CLOSE
     ════════════════════════════════════════════ */
-    #slide-9 {
+    #slide-5 {
       background: var(--bg);
       overflow: hidden;
       text-align: center;
     }
-    #slide-9 .slide-inner { position: relative; z-index: 2; text-align: center; }
+    #slide-5 .slide-inner { position: relative; z-index: 2; text-align: center; }
     .close-headline {
       font-family: 'Playfair Display', Georgia, serif;
       font-size: clamp(2.2rem, 4.5vw, 4.2rem);
@@ -661,64 +558,19 @@
       background: linear-gradient(90deg, transparent, var(--gold), transparent);
       margin: 36px auto;
     }
-    .close-tags {
-      display: flex;
-      gap: 10px;
-      justify-content: center;
-      flex-wrap: wrap;
-      margin-top: 8px;
-    }
-    .close-tag {
-      padding: 8px 18px;
-      border-radius: 100px;
-      background: rgba(255,255,255,0.04);
-      border: 1px solid var(--border);
-      font-size: 0.82rem;
-      font-weight: 600;
-      color: var(--muted);
-      letter-spacing: 0.04em;
-    }
-    .close-tag.highlight {
-      background: rgba(201,168,76,0.1);
-      border-color: var(--gold-line);
-      color: var(--gold);
-    }
-    .close-mark {
-      margin-top: 40px;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      color: rgba(255,255,255,0.3);
-    }
-    .close-mark span { color: var(--gold); }
 
     /* ─────────────────────────────────────────────
        RESPONSIVE
     ───────────────────────────────────────────── */
     @media (max-width: 900px) {
-      .slide { padding: 56px 28px 72px; }
-      #slide-2 .what-layout { grid-template-columns: 1fr; gap: 28px; }
-      .hero-layout { grid-template-columns: 1fr; gap: 28px; }
-      .broadcast-grid { grid-template-columns: 1fr; }
-      .two-col-points { grid-template-columns: 1fr; gap: 16px; }
-      .phases-layout { grid-template-columns: 1fr; gap: 16px; }
+      .slide { padding: 56px 24px 80px; }
+      .presets-layout { grid-template-columns: 1fr; gap: 24px; }
     }
-
     @media (max-width: 600px) {
-      .slide { padding: 48px 16px 64px; }
-      .cover-meta { flex-direction: column; gap: 10px; }
-      .nav-btn { width: 38px; height: 38px; }
+      .slide { padding: 52px 14px 80px; }
+      .nav-btn { width: 40px; height: 40px; }
       #btn-prev { left: 6px; }
       #btn-next { right: 6px; }
-      .close-tags { gap: 8px; }
-      .close-tag { font-size: 0.72rem; padding: 6px 12px; }
-      .broadcast-grid { grid-template-columns: 1fr; }
-      .two-col-points { grid-template-columns: 1fr; }
-      .phases-layout { grid-template-columns: 1fr; }
     }
 
     /* ─────────────────────────────────────────────
@@ -738,11 +590,11 @@
 <body>
 
 <!-- ─── PROGRESS BAR ─────────────────────────── -->
-<div id="progress-bar" role="progressbar" aria-label="Presentation progress" aria-valuenow="1" aria-valuemin="1" aria-valuemax="9"></div>
+<div id="progress-bar" role="progressbar" aria-label="Presentation progress" aria-valuenow="1" aria-valuemin="1" aria-valuemax="5"></div>
 
 <!-- ─── SLIDE COUNTER ────────────────────────── -->
 <div id="slide-counter" aria-live="polite" aria-atomic="true">
-  <span id="current-num">1</span> / 9
+  <span id="current-num">1</span> / 5
 </div>
 
 <!-- ─── NAVIGATION ───────────────────────────── -->
@@ -753,7 +605,7 @@
   <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
 </button>
 
-<!-- Mobile tap zones -->
+<!-- Mobile tap zones (hidden on slider slides by JS) -->
 <div id="tap-prev" class="tap-zone tap-prev" aria-hidden="true"></div>
 <div id="tap-next" class="tap-zone tap-next" aria-hidden="true"></div>
 
@@ -768,7 +620,7 @@
   <!-- ═══════════════════════════════════════════
        SLIDE 1 — COVER
   ════════════════════════════════════════════ -->
-  <section id="slide-1" class="slide active" role="region" aria-label="Cover: Broadcast-ready visuals in seconds">
+  <section id="slide-1" class="slide active" role="region" aria-label="Cover: See what it does">
     <div class="grid-lines" aria-hidden="true"></div>
     <div class="glow-orb" aria-hidden="true"></div>
     <div class="glow-orb-2" aria-hidden="true"></div>
@@ -784,155 +636,36 @@
       </div>
 
       <div class="anim-2">
-        <h1 class="display">
-          Broadcast-ready visuals.<br/>
-          <em>In seconds.</em>
-        </h1>
+        <h1 class="display">See what it does.</h1>
       </div>
 
       <div class="anim-3">
-        <p class="cover-tagline">An internal tool for the graphics department — upload an image, pick a preset, get a broadcast-ready version back.</p>
+        <p class="cover-tagline">Pick a preset, and the tool transforms any image — in seconds.</p>
       </div>
 
       <div class="anim-4">
         <div class="cover-divider" aria-hidden="true"></div>
       </div>
-
-      <div class="anim-5">
-        <div class="cover-meta">
-          <span>Graphics Department</span>
-          <span aria-hidden="true">·</span>
-          <span>Internal Tool</span>
-          <span aria-hidden="true">·</span>
-          <span>Phase 1</span>
-        </div>
-      </div>
     </div>
   </section>
 
   <!-- ═══════════════════════════════════════════
-       SLIDE 2 — WHAT IT IS
+       SLIDE 2 — PRESETS  [shots/presets.png]
   ════════════════════════════════════════════ -->
-  <section id="slide-2" class="slide" role="region" aria-label="What it is">
+  <section id="slide-2" class="slide" role="region" aria-label="One preset. One consistent look.">
 
     <div class="slide-inner">
-      <p class="overline anim-1">The Tool</p>
-      <h2 class="headline anim-2">What it is</h2>
-      <div class="gold-rule anim-2" aria-hidden="true"></div>
-
-      <div class="what-layout">
-        <div>
-          <p class="body-text anim-3">A simple, internal web tool for the Al Arabiya graphics team. A designer uploads an image, chooses a preset, and the system returns an AI-transformed version that's ready for air — then downloads it. It runs on the channel's own AI subscriptions, on the team's own network.</p>
-        </div>
-
-        <div class="what-points anim-4" role="list" aria-label="Key points about the tool">
-          <div class="point-item" role="listitem">
-            <div class="point-num" aria-hidden="true">1</div>
-            <p class="point-text"><strong>Upload → Preset → Result.</strong> That's the whole flow.</p>
-          </div>
-          <div class="point-item" role="listitem">
-            <div class="point-num" aria-hidden="true">2</div>
-            <p class="point-text"><strong>No technical skill needed</strong> — it's built for designers, not engineers.</p>
-          </div>
-          <div class="point-item" role="listitem">
-            <div class="point-num" aria-hidden="true">3</div>
-            <p class="point-text"><strong>Everything self-serve:</strong> the team controls its own styles.</p>
-          </div>
-        </div>
+      <div class="anim-1">
+        <h2 class="headline">One preset. One consistent look.</h2>
+        <div class="gold-rule" aria-hidden="true"></div>
       </div>
-    </div>
-  </section>
 
-  <!-- ═══════════════════════════════════════════
-       SLIDE 3 — HOW IT WORKS  [shots/cropper.png]
-  ════════════════════════════════════════════ -->
-  <section id="slide-3" class="slide hero-screenshot-slide" role="region" aria-label="How it works — cropping step">
-
-    <div class="slide-inner">
-      <p class="overline anim-1">The Workflow</p>
-      <h2 class="headline anim-2">How it works</h2>
-      <div class="gold-rule anim-2" aria-hidden="true"></div>
-
-      <div class="hero-layout">
-        <div class="hero-copy anim-3">
-          <div class="step-badges" role="list" aria-label="Three steps to get a broadcast-ready visual">
-            <div class="step-badge" role="listitem">
-              <div class="step-badge-num" aria-label="Step 1">01</div>
-              <p class="step-badge-text"><strong>Upload your image.</strong></p>
-            </div>
-            <div class="step-badge" role="listitem">
-              <div class="step-badge-num" aria-label="Step 2">02</div>
-              <p class="step-badge-text"><strong>Pick a preset</strong> (the look you want) and crop to the aspect ratio you need.</p>
-            </div>
-            <div class="step-badge" role="listitem">
-              <div class="step-badge-num" aria-label="Step 3">03</div>
-              <p class="step-badge-text"><strong>The system generates it;</strong> review and download.</p>
-            </div>
-          </div>
+      <div class="presets-layout">
+        <div class="presets-copy anim-2">
+          <p class="body-text">A "preset" is a saved style. Define the look once — then apply it to any image, the same way every time. The team creates and manages its own presets; no developer needed.</p>
         </div>
 
-        <div class="hero-visual anim-scale">
-          <div class="screenshot-frame">
-            <div class="browser-bar" aria-hidden="true">
-              <div class="dot-row"><span></span><span></span><span></span></div>
-            </div>
-            <img
-              src="shots/cropper.png"
-              alt="The cropping interface — a designer reframes a source image and selects the target aspect ratio before generating"
-              loading="lazy"
-              width="1200"
-              height="650"
-            />
-          </div>
-          <p class="screenshot-caption">Cropping step — choose the exact aspect ratio and reframe the shot before generating.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ═══════════════════════════════════════════
-       SLIDE 4 — PRESETS  [shots/presets.png]
-  ════════════════════════════════════════════ -->
-  <section id="slide-4" class="slide hero-screenshot-slide" role="region" aria-label="Presets — your saved looks">
-
-    <div class="slide-inner">
-      <p class="overline anim-1">Styles</p>
-      <h2 class="headline anim-2">Presets — your saved looks</h2>
-      <div class="gold-rule anim-2" aria-hidden="true"></div>
-
-      <div class="hero-layout">
-        <div class="hero-copy anim-3">
-          <p class="body-text" style="margin-bottom:20px;">Every style the tool can apply is saved as a "preset." A designer just picks one and the system applies that exact treatment — no prompt-writing, no guesswork.</p>
-
-          <div class="step-badges" role="list" aria-label="What each preset holds">
-            <div class="step-badge" role="listitem">
-              <div class="step-badge-num" aria-hidden="true">
-                <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><polyline points="2 6 5 9 10 3"/></svg>
-              </div>
-              <p class="step-badge-text">A name, description, and the AI model to use</p>
-            </div>
-            <div class="step-badge" role="listitem">
-              <div class="step-badge-num" aria-hidden="true">
-                <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><polyline points="2 6 5 9 10 3"/></svg>
-              </div>
-              <p class="step-badge-text">Whether it's an image or video style</p>
-            </div>
-            <div class="step-badge" role="listitem">
-              <div class="step-badge-num" aria-hidden="true">
-                <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><polyline points="2 6 5 9 10 3"/></svg>
-              </div>
-              <p class="step-badge-text">An optional locked style reference so every frame in a set matches</p>
-            </div>
-            <div class="step-badge" role="listitem">
-              <div class="step-badge-num" aria-hidden="true">
-                <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><polyline points="2 6 5 9 10 3"/></svg>
-              </div>
-              <p class="step-badge-text"><strong>A new preset can be added in minutes</strong> from a settings page — no developer, no waiting for a new release.</p>
-            </div>
-          </div>
-        </div>
-
-        <div class="hero-visual anim-scale">
+        <div class="anim-scale">
           <div class="screenshot-frame">
             <div class="browser-bar" aria-hidden="true">
               <div class="dot-row"><span></span><span></span><span></span></div>
@@ -945,178 +678,119 @@
               height="650"
             />
           </div>
-          <p class="screenshot-caption">The presets screen — create, edit, and manage the available styles.</p>
+          <p class="screenshot-caption">Where presets are created and managed.</p>
         </div>
       </div>
     </div>
   </section>
 
   <!-- ═══════════════════════════════════════════
-       SLIDE 5 — THE RESULT  [shots/result.png]
+       SLIDE 3 — DEMO: UPSCALE  [before/after slider, portrait 4:5]
   ════════════════════════════════════════════ -->
-  <section id="slide-5" class="slide hero-screenshot-slide" role="region" aria-label="The result — original in, broadcast-ready out">
+  <section id="slide-3" class="slide ba-slide-wrap" role="region" aria-label="Demo: Upscale — low-resolution in, broadcast-resolution out">
 
-    <div class="slide-inner">
-      <p class="overline anim-1">The Output</p>
-      <h2 class="headline anim-2">Original in, broadcast-ready out</h2>
-      <div class="gold-rule anim-2" aria-hidden="true"></div>
-
-      <div class="hero-layout">
-        <div class="hero-copy anim-3">
-          <p class="body-text">The result screen shows the generated frame, ready to download. The screenshot shows an original and its AI-enhanced version side by side.</p>
-
-          <div class="step-badges" style="margin-top:28px;" role="list" aria-label="Result screen actions">
-            <div class="step-badge" role="listitem">
-              <div class="step-badge-num" aria-hidden="true">
-                <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M6 2v6M3 6l3 3 3-3"/><line x1="2" y1="10" x2="10" y2="10"/></svg>
-              </div>
-              <p class="step-badge-text"><strong>Review</strong> the generated frame on screen</p>
-            </div>
-            <div class="step-badge" role="listitem">
-              <div class="step-badge-num" aria-hidden="true">
-                <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M6 2v6M3 6l3 3 3-3"/><line x1="2" y1="10" x2="10" y2="10"/></svg>
-              </div>
-              <p class="step-badge-text"><strong>Download</strong> it, or start over</p>
-            </div>
-          </div>
-        </div>
-
-        <div class="hero-visual anim-scale">
-          <div class="screenshot-frame">
-            <div class="browser-bar" aria-hidden="true">
-              <div class="dot-row"><span></span><span></span><span></span></div>
-            </div>
-            <img
-              src="shots/result.png"
-              alt="The result screen showing an original image alongside its AI-generated broadcast-ready version, with a Download button"
-              loading="lazy"
-              width="1440"
-              height="900"
-            />
-          </div>
-          <p class="screenshot-caption">A finished generation — review it, then Download, or Start over.</p>
-        </div>
+    <div class="ba-slide-inner slide-inner">
+      <div class="ba-header">
+        <p class="overline anim-1">Preset — Upscale</p>
+        <h2 class="headline anim-2">Low-resolution in. Broadcast-resolution out.</h2>
+        <div class="gold-rule" style="margin:16px auto 8px;" aria-hidden="true"></div>
+        <p class="body-text anim-3" style="max-width:600px;margin:0 auto 20px;">A soft, low-res portrait, restored to sharp broadcast quality — same person, recovered detail.</p>
       </div>
-    </div>
-  </section>
 
-  <!-- ═══════════════════════════════════════════
-       SLIDE 6 — MADE FOR BROADCAST
-  ════════════════════════════════════════════ -->
-  <section id="slide-6" class="slide" role="region" aria-label="Made for broadcast">
-
-    <div class="slide-inner">
-      <p class="overline anim-1">Quality</p>
-      <h2 class="headline anim-2">Made for broadcast</h2>
-      <div class="gold-rule anim-2" aria-hidden="true"></div>
-
-      <div class="broadcast-grid anim-3" role="list" aria-label="Broadcast-quality features">
-        <article class="broadcast-card" role="listitem">
-          <div class="broadcast-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/>
+      <!-- BEFORE/AFTER SLIDER — portrait 4:5 -->
+      <div class="anim-scale" style="width:100%;display:flex;flex-direction:column;align-items:center;">
+        <div
+          class="ba-container ratio-4x5"
+          id="slider-3"
+          role="figure"
+          aria-label="Before and after comparison: upscale preset. Drag the handle to compare."
+        >
+          <!-- BEFORE layer (always fully visible) -->
+          <div class="ba-before">
+            <img src="shots/up-before.jpg" alt="Before: low-resolution portrait, soft and blurry" width="1000" height="1241" />
+          </div>
+          <!-- AFTER layer (clipped, reveals right half) -->
+          <div class="ba-after" id="ba-after-3">
+            <img src="shots/up-after.jpg" alt="After: same portrait restored to sharp broadcast quality" width="1000" height="1241" />
+          </div>
+          <!-- Divider -->
+          <div class="ba-divider" id="ba-divider-3" aria-hidden="true"></div>
+          <!-- Handle — keyboard operable -->
+          <button
+            class="ba-handle"
+            id="ba-handle-3"
+            aria-label="Drag to compare before and after. Use arrow keys to move."
+            aria-valuenow="50"
+            aria-valuemin="0"
+            aria-valuemax="100"
+            role="slider"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <polyline points="8 5 2 12 8 19"/><polyline points="16 5 22 12 16 19"/>
             </svg>
-          </div>
-          <h3>High resolution</h3>
-          <p>Full-HD-class and above, fit for the screen.</p>
-        </article>
-
-        <article class="broadcast-card" role="listitem">
-          <div class="broadcast-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="12" y1="3" x2="12" y2="21"/>
-            </svg>
-          </div>
-          <h3>Any aspect ratio you choose</h3>
-          <p>16:9, vertical, or whatever the segment needs.</p>
-        </article>
-
-        <article class="broadcast-card" role="listitem">
-          <div class="broadcast-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
-            </svg>
-          </div>
-          <h3>Composed for air</h3>
-          <p>The subject sits centered with room around it for on-screen graphics and overlays.</p>
-        </article>
-
-        <article class="broadcast-card" role="listitem">
-          <div class="broadcast-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>
-            </svg>
-          </div>
-          <h3>Consistent across a set</h3>
-          <p>A locked style reference keeps every frame in a package looking the same.</p>
-        </article>
-      </div>
-    </div>
-  </section>
-
-  <!-- ═══════════════════════════════════════════
-       SLIDE 7 — DEPENDABLE & SELF-SERVE
-  ════════════════════════════════════════════ -->
-  <section id="slide-7" class="slide" role="region" aria-label="Dependable and in the team's hands">
-
-    <div class="slide-inner">
-      <p class="overline anim-1">Reliability</p>
-      <h2 class="headline anim-2">Dependable, and in the team's hands</h2>
-      <div class="gold-rule anim-2" aria-hidden="true"></div>
-
-      <div class="two-col-points anim-3" role="list" aria-label="Reliability and self-serve features">
-        <article class="big-point" role="listitem">
-          <div class="big-point-num" aria-hidden="true">01</div>
-          <h3>It doesn't get stuck.</h3>
-          <p>If a generation fails, it says so clearly and can be retried — it never locks up the tool.</p>
-        </article>
-
-        <article class="big-point" role="listitem">
-          <div class="big-point-num" aria-hidden="true">02</div>
-          <h3>It grows without rebuilds.</h3>
-          <p>Adding a new style — or a new AI model — is a setting, not a software project.</p>
-        </article>
-      </div>
-    </div>
-  </section>
-
-  <!-- ═══════════════════════════════════════════
-       SLIDE 8 — WHAT'S NEXT (PHASE 2)
-  ════════════════════════════════════════════ -->
-  <section id="slide-8" class="slide" role="region" aria-label="What's next — Phase 2: motion">
-
-    <div class="slide-inner">
-      <p class="overline anim-1">Roadmap</p>
-      <h2 class="headline anim-2">What's next — motion</h2>
-      <div class="gold-rule anim-2" aria-hidden="true"></div>
-
-      <div class="phases-layout anim-3" role="list" aria-label="Product phases">
-        <div class="phase-box current" role="listitem" aria-label="Phase 1: Now — Images">
-          <span class="phase-pill done">
-            <svg viewBox="0 0 12 12" width="10" height="10" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><polyline points="2 6 5 9 10 3"/></svg>
-            Phase 1 — Now
-          </span>
-          <h3>Still Images</h3>
-          <p>Upload any image, pick a preset, get a broadcast-ready frame back. The whole flow the team already knows.</p>
+          </button>
+          <!-- Labels -->
+          <span class="ba-label ba-label-before" aria-hidden="true">Before</span>
+          <span class="ba-label ba-label-after" aria-hidden="true">After</span>
         </div>
-
-        <div class="phase-box next" role="listitem" aria-label="Phase 2: Coming — Motion">
-          <span class="phase-pill coming">
-            <svg viewBox="0 0 12 12" width="10" height="10" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="6" cy="6" r="5"/><polyline points="6 3 6 6 8 8"/></svg>
-            Phase 2 — Coming
-          </span>
-          <h3>Motion</h3>
-          <p>Phase 2 brings video — short generated "rushes" — using the <strong>same upload → preset → result flow</strong> the team already knows.</p>
-          <p class="phase-note">Presets already support an Image or Video type — the foundation is already in place.</p>
-        </div>
+        <p class="ba-hint" aria-hidden="true">Drag the handle to compare</p>
       </div>
     </div>
   </section>
 
   <!-- ═══════════════════════════════════════════
-       SLIDE 9 — CLOSE
+       SLIDE 4 — DEMO: CINEMATIC  [before/after slider, 16:9]
   ════════════════════════════════════════════ -->
-  <section id="slide-9" class="slide" role="region" aria-label="Closing slide">
+  <section id="slide-4" class="slide ba-slide-wrap" role="region" aria-label="Demo: Cinematic — an ordinary shot becomes a cinematic frame">
+
+    <div class="ba-slide-inner slide-inner">
+      <div class="ba-header">
+        <p class="overline anim-1">Preset — Cinematic</p>
+        <h2 class="headline anim-2">An ordinary shot becomes a cinematic frame.</h2>
+        <div class="gold-rule" style="margin:16px auto 8px;" aria-hidden="true"></div>
+        <p class="body-text anim-3" style="max-width:600px;margin:0 auto 20px;">A flat phone snapshot, re-graded into a cinematic broadcast look — same scene, transformed mood.</p>
+      </div>
+
+      <!-- BEFORE/AFTER SLIDER — landscape 16:9 -->
+      <div class="anim-scale" style="width:100%;display:flex;flex-direction:column;align-items:center;">
+        <div
+          class="ba-container ratio-16x9"
+          id="slider-4"
+          role="figure"
+          aria-label="Before and after comparison: cinematic preset. Drag the handle to compare."
+        >
+          <div class="ba-before">
+            <img src="shots/cine-before.jpg" alt="Before: flat phone snapshot with ordinary colours" width="1200" height="669" />
+          </div>
+          <div class="ba-after" id="ba-after-4">
+            <img src="shots/cine-after.jpg" alt="After: same scene re-graded into a cinematic broadcast look" width="1200" height="669" />
+          </div>
+          <div class="ba-divider" id="ba-divider-4" aria-hidden="true"></div>
+          <button
+            class="ba-handle"
+            id="ba-handle-4"
+            aria-label="Drag to compare before and after. Use arrow keys to move."
+            aria-valuenow="50"
+            aria-valuemin="0"
+            aria-valuemax="100"
+            role="slider"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <polyline points="8 5 2 12 8 19"/><polyline points="16 5 22 12 16 19"/>
+            </svg>
+          </button>
+          <span class="ba-label ba-label-before" aria-hidden="true">Before</span>
+          <span class="ba-label ba-label-after" aria-hidden="true">After</span>
+        </div>
+        <p class="ba-hint" aria-hidden="true">Drag the handle to compare</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════
+       SLIDE 5 — CLOSE
+  ════════════════════════════════════════════ -->
+  <section id="slide-5" class="slide" role="region" aria-label="Closing slide">
     <div class="grid-lines" aria-hidden="true"></div>
     <div class="glow-orb-center" aria-hidden="true"></div>
 
@@ -1131,29 +805,14 @@
       </div>
 
       <div class="anim-2">
-        <h2 class="close-headline">Upload. Preset. <em>On air.</em></h2>
+        <h2 class="close-headline">Upload. Pick a preset. <em>On air.</em></h2>
       </div>
 
       <div class="anim-3">
-        <p class="close-sub">A broadcast-ready visual in seconds — self-serve, on the channel's own tools.</p>
+        <p class="close-sub">Real results in seconds — on the channel's own tools.</p>
       </div>
 
       <div class="close-rule anim-4" aria-hidden="true"></div>
-
-      <div class="close-tags anim-5" role="list" aria-label="Key qualities">
-        <div class="close-tag highlight" role="listitem">Upload</div>
-        <div class="close-tag" role="listitem">Preset</div>
-        <div class="close-tag highlight" role="listitem">On air</div>
-        <div class="close-tag" role="listitem">Self-serve</div>
-        <div class="close-tag highlight" role="listitem">No technical skill needed</div>
-        <div class="close-tag" role="listitem">Phase 2: motion</div>
-      </div>
-
-      <div class="anim-5" style="margin-top:40px;">
-        <div class="close-mark">
-          <span>Al Arabiya</span> — Internal Graphics Tool
-        </div>
-      </div>
     </div>
   </section>
 
@@ -1163,18 +822,26 @@
   (() => {
     'use strict';
 
-    const TOTAL = 9;
+    /* ─────────────────────────────────────────────
+       DECK NAVIGATION  (5 slides)
+    ───────────────────────────────────────────── */
+    const TOTAL = 5;
+    // Slider slides (0-indexed): slides 3 and 4 = index 2 and 3
+    const SLIDER_SLIDES = new Set([2, 3]);
+
     let current = 0;
 
-    const deck       = document.getElementById('deck');
-    const slides     = Array.from(deck.querySelectorAll('.slide'));
-    const progressBar   = document.getElementById('progress-bar');
-    const currentNumEl  = document.getElementById('current-num');
-    const dotsNav    = document.getElementById('dots');
-    const btnPrev    = document.getElementById('btn-prev');
-    const btnNext    = document.getElementById('btn-next');
+    const deck         = document.getElementById('deck');
+    const slides       = Array.from(deck.querySelectorAll('.slide'));
+    const progressBar  = document.getElementById('progress-bar');
+    const currentNumEl = document.getElementById('current-num');
+    const dotsNav      = document.getElementById('dots');
+    const btnPrev      = document.getElementById('btn-prev');
+    const btnNext      = document.getElementById('btn-next');
+    const tapPrevEl    = document.getElementById('tap-prev');
+    const tapNextEl    = document.getElementById('tap-next');
 
-    // ── Build dots ───────────────────────────────
+    // Build dots
     slides.forEach((_, i) => {
       const btn = document.createElement('button');
       btn.className = 'dot' + (i === 0 ? ' active' : '');
@@ -1186,7 +853,13 @@
 
     const dots = Array.from(dotsNav.querySelectorAll('.dot'));
 
-    // ── Update UI ────────────────────────────────
+    function setTapZoneVisibility(idx) {
+      // On slider slides, hide tap zones so they don't intercept drag events
+      const hide = SLIDER_SLIDES.has(idx);
+      if (tapPrevEl) tapPrevEl.style.display = hide ? 'none' : '';
+      if (tapNextEl) tapNextEl.style.display = hide ? 'none' : '';
+    }
+
     function updateUI(prev, next) {
       slides[prev].classList.remove('active');
       slides[prev].classList.add('exit-left');
@@ -1208,11 +881,12 @@
       const pct = ((next + 1) / TOTAL) * 100;
       progressBar.style.width = pct + '%';
       progressBar.setAttribute('aria-valuenow', next + 1);
-
       currentNumEl.textContent = next + 1;
 
       btnPrev.style.opacity = next === 0 ? '0.3' : '1';
       btnNext.style.opacity = next === TOTAL - 1 ? '0.3' : '1';
+
+      setTapZoneVisibility(next);
     }
 
     function goTo(index) {
@@ -1228,23 +902,33 @@
 
     btnPrev.addEventListener('click', prev);
     btnNext.addEventListener('click', next);
+    if (tapPrevEl) tapPrevEl.addEventListener('click', prev);
+    if (tapNextEl) tapNextEl.addEventListener('click', next);
 
-    // ── Keyboard ─────────────────────────────────
+    // Keyboard navigation
     document.addEventListener('keydown', (e) => {
+      // If focus is inside a slider handle, let the slider handle it
+      if (document.activeElement && document.activeElement.classList.contains('ba-handle')) return;
       if (e.key === 'ArrowRight' || e.key === 'ArrowDown') { e.preventDefault(); next(); }
       if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')   { e.preventDefault(); prev(); }
       if (e.key === 'Home') { e.preventDefault(); goTo(0); }
       if (e.key === 'End')  { e.preventDefault(); goTo(TOTAL - 1); }
     });
 
-    // ── Touch / swipe ────────────────────────────
+    // Touch swipe for non-slider slides
     let touchStartX = 0;
     let touchStartY = 0;
+    let touchOnSlider = false;
+
     deck.addEventListener('touchstart', (e) => {
       touchStartX = e.touches[0].clientX;
       touchStartY = e.touches[0].clientY;
+      // Check if touch started inside a slider container
+      touchOnSlider = !!e.target.closest('.ba-container');
     }, { passive: true });
+
     deck.addEventListener('touchend', (e) => {
+      if (touchOnSlider) return; // slider handles its own touch
       const dx = e.changedTouches[0].clientX - touchStartX;
       const dy = e.changedTouches[0].clientY - touchStartY;
       if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 40) {
@@ -1252,15 +936,103 @@
       }
     }, { passive: true });
 
-    // ── Mobile tap zones ─────────────────────────
-    const tapPrevEl = document.getElementById('tap-prev');
-    const tapNextEl = document.getElementById('tap-next');
-    if (tapPrevEl) tapPrevEl.addEventListener('click', prev);
-    if (tapNextEl) tapNextEl.addEventListener('click', next);
-
-    // ── Initial state ────────────────────────────
+    // Initial state
     btnPrev.style.opacity = '0.3';
     progressBar.style.width = ((1 / TOTAL) * 100) + '%';
+    setTapZoneVisibility(0);
+
+    /* ─────────────────────────────────────────────
+       BEFORE/AFTER SLIDER COMPONENT
+       Works for both portrait (slide 3) and landscape (slide 4).
+    ───────────────────────────────────────────── */
+    function initSlider(containerId, afterId, dividerId, handleId) {
+      const container = document.getElementById(containerId);
+      const afterEl   = document.getElementById(afterId);
+      const divider   = document.getElementById(dividerId);
+      const handle    = document.getElementById(handleId);
+
+      if (!container || !afterEl || !divider || !handle) return;
+
+      let pct = 50; // percent (0–100)
+      let dragging = false;
+
+      function setPosition(newPct) {
+        pct = Math.min(100, Math.max(0, newPct));
+        // Clip the after image: show only the portion to the right of the handle
+        // inset(top right bottom left) — inset from left by pct% reveals the right (after) side
+        afterEl.style.clipPath = `inset(0 0 0 ${pct}%)`;
+        // Move divider line
+        divider.style.left = pct + '%';
+        // Move handle circle
+        handle.style.left = pct + '%';
+        // Update ARIA
+        handle.setAttribute('aria-valuenow', Math.round(pct));
+      }
+
+      function pctFromEvent(clientX) {
+        const rect = container.getBoundingClientRect();
+        return ((clientX - rect.left) / rect.width) * 100;
+      }
+
+      // ── Mouse events ─────────────────────────
+      container.addEventListener('mousedown', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        dragging = true;
+        setPosition(pctFromEvent(e.clientX));
+      });
+
+      document.addEventListener('mousemove', (e) => {
+        if (!dragging) return;
+        e.preventDefault();
+        e.stopPropagation();
+        setPosition(pctFromEvent(e.clientX));
+      });
+
+      document.addEventListener('mouseup', (e) => {
+        if (!dragging) return;
+        dragging = false;
+      });
+
+      // ── Touch events ─────────────────────────
+      container.addEventListener('touchstart', (e) => {
+        e.stopPropagation(); // stop swipe from triggering slide nav
+        dragging = true;
+        setPosition(pctFromEvent(e.touches[0].clientX));
+      }, { passive: true });
+
+      container.addEventListener('touchmove', (e) => {
+        if (!dragging) return;
+        e.stopPropagation();
+        e.preventDefault(); // prevent page scroll during drag
+        setPosition(pctFromEvent(e.touches[0].clientX));
+      }, { passive: false });
+
+      container.addEventListener('touchend', (e) => {
+        e.stopPropagation();
+        dragging = false;
+      }, { passive: true });
+
+      // ── Keyboard (handle must be focused) ────
+      handle.addEventListener('keydown', (e) => {
+        let step = 0;
+        if (e.key === 'ArrowRight' || e.key === 'ArrowUp')   step =  2;
+        if (e.key === 'ArrowLeft'  || e.key === 'ArrowDown') step = -2;
+        if (e.key === 'Home') { setPosition(0); e.preventDefault(); return; }
+        if (e.key === 'End')  { setPosition(100); e.preventDefault(); return; }
+        if (step !== 0) {
+          e.preventDefault();
+          e.stopPropagation(); // don't let slide nav see it
+          setPosition(pct + step);
+        }
+      });
+
+      // Initialize at 50%
+      setPosition(50);
+    }
+
+    initSlider('slider-3', 'ba-after-3', 'ba-divider-3', 'ba-handle-3');
+    initSlider('slider-4', 'ba-after-4', 'ba-divider-4', 'ba-handle-4');
 
   })();
 </script>
